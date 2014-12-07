@@ -127,42 +127,55 @@ public class RBM extends Thread {
         }
     }
 
+    /**
+     * recognize movie using questions selection based on RBM
+     * 
+     * @param movieId
+     * @param entropy
+     * @return
+     */
     public int recognizeMovie(int movieId, boolean entropy) {
-
         xMatrix = new FloatMatrix(generateXMatrix(movieId - 1));
         vMatrix = cmf.singleMatrixOperation(new FloatMatrix(features, 1), ZEROS);
         int[] ids = new int[questions];
         int[] answered = new int[features];
-        int[] values = new int[questions];
         Arrays.fill(ids, -1);
         Arrays.fill(answered, -1);
-        Arrays.fill(values, -1);
         for (int j = 0; j < questions; j++) {
             h1 = calculateH1();
             v2 = calculateV2();
-            if (entropy) {
-                removeAnswered(answered);
-            } else {
-                removeAnswered(ids);
-            }
+            removeAnswered(answered);
             FloatMatrix px = cmf.singleMatrixOperation(v2, NORMALIZE);
             double r = Math.random();
             FloatMatrix cumsum = cmf.singleMatrixOperation(px, CUMSUM);
             FloatMatrix l = lessThan(cumsum, r);
             int id = (int) sum(l);
             ids[j] = id;
-//            System.out.println("Question" + id);
-//            System.out.println("Answer: " + xMatrix.get(0, id));
-            values[j] = (int) xMatrix.get(0, id);
-//            System.out.println("movies similiar: " + entropyCalculator.getMatchingMoviesAmount());
-            entropyCalculator.filterMovies(id, (int) xMatrix.get(0, id));
-//            System.out.println("movies similiar: " + entropyCalculator.getMatchingMoviesAmount());
+            if (entropy) {
+                entropyCalculator.getCalculatedValues()[id] = (int) xMatrix.get(0, id);
+            }
+            System.out.println(Arrays.toString(ids));
+            answered[id] = (int) xMatrix.get(0, id);
+            if (entropy){
+                entropyCalculator.filterMovies(id, (int) xMatrix.get(0, id));
+            }
             vMatrix.put(id, 0, xMatrix.get(0, id));
             order[id].add(j);
-            answered = entropyCalculator.answeredQuestions();
+            System.out.println("Answering question: "+ id);
+            System.out.println("Answer: "+ xMatrix.get(0, id));
+            if (entropy) {
+                answered = entropyCalculator.answeredQuestions();
+//                System.out.println(entropyCalculator.answeredQuestionsAmount());
+//                List<Integer> answeredIds = entropyCalculator.getAnsweredQuestionsIds();
+//                for (Integer i : answeredIds) {
+//                    System.out.print(i + " ");
+//                }
+//                System.out.println("");
+            }
 //            System.out.println(entropyCalculator.answeredQuestionsAmount());
         }
-        int similiar = calculateAnswers(ids, values);
+        int similiar = calculateAnswers(answered);
+        System.out.println(Arrays.toString(ids));
         System.out.println("FINISH! " + similiar);
 //        System.out.println(entropyCalculator.answeredQuestions());
 
@@ -289,31 +302,31 @@ public class RBM extends Thread {
         return result;
     }
 
-    private void removeAnswered(int[] ids) {
-        int i = 0;
+    private void removeAnswered(int[] answered) {
         int j = 0;
-//        while (ids[i] != -1 && i < questions) {
-        //TODO more generic
-        while (i < features) {
-            if (ids[i] != -1) {
-                v2.put(ids[j], 0, 0);
+        for (int i = 0; i < features; i ++) {
+            if (answered[i] != -1) {
+                v2.put(i, 0, 0);
                 j++;
             }
-            i++;
         }
-        System.out.println(i);
+        System.out.println("Removed: " + j);
     }
 
-    private int calculateAnswers(int[] ids, int[] values) {
+    private int calculateAnswers(int[] answered) {
         int[] matches = new int[concepts];
         Arrays.fill(matches, -1);
         int actuall = 0;
         for (int i = 0; i < concepts; i++) {
             int j = 0;
-            while (j < questions && dataSet.get(i, ids[j]) == values[j]) {
+            boolean match = true;
+            while (j < features) {
+                if (answered[j] != -1 && dataSet.get(i, j) != answered[j]) {
+                    match = false;
+                }
                 j++;
             }
-            if (j == questions) {
+            if (match) {
                 matches[actuall] = i;
                 actuall++;
             }
@@ -325,7 +338,16 @@ public class RBM extends Thread {
         }
         mainInfo.append(actuall).append(newLine);
         mainInfo.append(matchedMovies).append(newLine);
+        System.out.println(matchedMovies);
         return actuall;
+    }
+
+    private int countAnswered(int[] answered) {
+        int counter = 0;
+        for (int i : answered) {
+            if (i != -1) counter ++;
+        }
+        return counter;
     }
 
     private class Node {

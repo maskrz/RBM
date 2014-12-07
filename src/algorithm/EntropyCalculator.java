@@ -5,7 +5,9 @@
  */
 package algorithm;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.jblas.FloatMatrix;
 
 /**
@@ -28,6 +30,10 @@ public class EntropyCalculator {
         initializeMatches();
     }
 
+    /**
+     * remove movie with given id from matching movies list
+     * @param id
+     */
     protected void removeMovie(int id) {
         if (matchingMovies[id]) {
             matchingMovies[id] = false;
@@ -35,6 +41,10 @@ public class EntropyCalculator {
         }
     }
 
+    /**
+     * initialize all arrays - matching movies, calculated values
+     * set matching movies amount to all movies amount
+     */
     protected void initializeMatches() {
         setMatchingMovies(new boolean[rows]);
         Arrays.fill(getMatchingMovies(), true);
@@ -43,14 +53,29 @@ public class EntropyCalculator {
         setMatchingMoviesAmount(rows);
     }
 
+    /**
+     * calculate logarithm with base 2 from given x
+     * @param x
+     * @return
+     */
     protected float calcLogarithm(float x) {
         return (float) (Math.log(x) / Math.log(2));
     }
 
+    /**
+     * check if movie match to answers
+     * @param id
+     * @return
+     */
     public boolean isMatchedMovie(int id) {
         return matchingMovies[id];
     }
 
+    /**
+     * calculate number of positive answers of given question for all matching movies
+     * @param questionId
+     * @return
+     */
     protected int positiveAnswers(int questionId) {
         int sum = 0;
         for (int i = 0; i < rows; i++) {
@@ -61,6 +86,12 @@ public class EntropyCalculator {
         return sum;
     }
 
+    /**
+     * calculate entropy of given question based on matching movies list
+     * if entropy is 0, then set value of given on calculated values
+     * @param questionId
+     * @return
+     */
     public float calculateEntropyForQuestion(int questionId) {
         float positive = positiveAnswers(questionId);
 
@@ -77,36 +108,54 @@ public class EntropyCalculator {
         return ans;
     }
 
+    /**
+     * calculate Entropy for all questions
+     */
     public void calculateForAllQuestions() {
         for (int i = 0; i < columns; i++) {
             calculateEntropyForQuestion(i);
         }
     }
 
+    /**
+     * filtr movies list - remove movies which do not match answers
+     * then extract new answers
+     * @param questionId
+     * @param answer
+     */
     public void filterMovies(int questionId, int answer) {
+        System.out.println(matchingMoviesAmount);
         for (int i = 0; i < rows; i++) {
             if (getMovies().get(i, questionId) != answer) {
                 removeMovie(i);
             }
         }
         calculateForAllQuestions();
+        System.out.println(matchingMoviesAmount);
     }
 
+    /**
+     * create and return array of answers - if question has not been yet answered,
+     * then the value is -1
+     * @return
+     */
     public int[] answeredQuestions() {
         int[] answered = new int[columns];
         Arrays.fill(answered, -1);
-//        System.out.println(Arrays.toString(getCalculatedValues()));
-        int j = 0;
         int sum = 0;
         for (int i = 0; i < columns; i ++) {
             if (getCalculatedValues()[i] >= 0) {
-                answered[j] = getCalculatedValues()[i];
+                answered[i] = getCalculatedValues()[i];
                 sum++;
             }
         }
         return answered;
     }
 
+    /**
+     * calculate and return number of answered questions
+     * @return
+     */
     public int answeredQuestionsAmount() {
         int sum = 0;
         for (int i = 0; i < columns; i ++) {
@@ -115,6 +164,20 @@ public class EntropyCalculator {
             }
         }
         return sum;
+    }
+
+    /**
+     * generate ArrayList with ids of answered questions
+     * @return
+     */
+    public List<Integer> getAnsweredQuestionsIds() {
+        List<Integer> answered = new ArrayList<Integer>();
+        for (int i = 0; i < columns; i ++) {
+            if (getCalculatedValues()[i] >= 0) {
+                answered.add(i);
+            }
+        }
+        return answered;
     }
 
     public FloatMatrix getMovies() {

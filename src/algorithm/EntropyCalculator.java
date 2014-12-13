@@ -20,6 +20,7 @@ public class EntropyCalculator {
     private boolean[] matchingMovies;
     private int[] calculatedValues;
     private int matchingMoviesAmount;
+    private float[] actuallEntropy;
     int rows;
     int columns;
 
@@ -27,6 +28,7 @@ public class EntropyCalculator {
         this.movies = movies;
         rows = movies.rows;
         columns = movies.columns;
+        actuallEntropy = new float[columns];
         initializeMatches();
     }
 
@@ -113,7 +115,7 @@ public class EntropyCalculator {
      */
     public void calculateForAllQuestions() {
         for (int i = 0; i < columns; i++) {
-            calculateEntropyForQuestion(i);
+            actuallEntropy[i] = calculateEntropyForQuestion(i);
         }
     }
 
@@ -124,14 +126,14 @@ public class EntropyCalculator {
      * @param answer
      */
     public void filterMovies(int questionId, int answer) {
-        System.out.println(matchingMoviesAmount);
+//        System.out.println(matchingMoviesAmount);
         for (int i = 0; i < rows; i++) {
             if (getMovies().get(i, questionId) != answer) {
                 removeMovie(i);
             }
         }
         calculateForAllQuestions();
-        System.out.println(matchingMoviesAmount);
+//        System.out.println(matchingMoviesAmount);
     }
 
     /**
@@ -178,6 +180,14 @@ public class EntropyCalculator {
             }
         }
         return answered;
+    }
+
+    /**
+     *
+     * @return calculated entropy for movie with given id
+     */
+    public float getEntropyForFeature(int id) {
+        return actuallEntropy[id];
     }
 
     public FloatMatrix getMovies() {

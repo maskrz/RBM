@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import matrices.operations.CalculatedMatrixFactory;
 import static matrices.operations.MatrixOperation.ADVERSE;
 import static matrices.operations.MatrixOperation.CUMSUM;
@@ -61,6 +62,8 @@ public class RBM extends Thread {
     private String newLine;
     private Node[] order;
     EntropyCalculator entropyCalculator;
+    private boolean filterMovies;
+    SelectionHelperType selectionHelperType;
 
     public RBM(FloatMatrix a, FloatMatrix b, FloatMatrix w, int questions, FloatMatrix dataSet, MainFrame mainFrame) {
         this.a = a;
@@ -82,16 +85,20 @@ public class RBM extends Thread {
 
     @Override
     public void run() {
-        executeForAll();
+        executeForAll(filterMovies, selectionHelperType);
     }
 
-    public void executeForAll() {
+    public void executeForAll(boolean entropy, SelectionHelperType selectionHelperType) {
         // starts from 1 because of movie numbering
+        this.selectionHelperType = selectionHelperType;
         for (int i = 1; i < concepts + 1; i++) {
+            System.out.println("Film nr: " + i);
+            this.entropyCalculator = new EntropyCalculator(dataSet.copy(dataSet));
+            
             mainInfo.append(i - 1).append(newLine);
             mainFrame.setProgress("Film nr " + i + " z " + concepts);
             long start = System.currentTimeMillis();
-            int similar = recognizeMovie(i, true);
+            int similar = recognizeMovie(i, entropy, selectionHelperType);
             long end = System.currentTimeMillis();
             System.out.println("------------");
             float time = (end - start) / 1000;
@@ -106,8 +113,9 @@ public class RBM extends Thread {
             sb.append(order[i].getListLength()).append(";");
             sb.append(order[i]).append(System.getProperty("line.separator"));
         }
-        File f = new File("statistics.txt");
-        File info = new File("mainInfo.txt");
+        Date time = new Date();
+        File f = new File("statistics"+time.getTime()+".txt");
+        File info = new File("mainInfo"+time.getTime()+".txt");
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -131,53 +139,46 @@ public class RBM extends Thread {
      * recognize movie using questions selection based on RBM
      * 
      * @param movieId
-     * @param entropy
+     * @param filterMovies
      * @return
      */
-    public int recognizeMovie(int movieId, boolean entropy) {
+    public int recognizeMovie(int movieId, boolean filterMovies, SelectionHelperType selectionHelperType) {
         xMatrix = new FloatMatrix(generateXMatrix(movieId - 1));
         vMatrix = cmf.singleMatrixOperation(new FloatMatrix(features, 1), ZEROS);
         int[] ids = new int[questions];
         int[] answered = new int[features];
         Arrays.fill(ids, -1);
         Arrays.fill(answered, -1);
+        if (filterMovies) {
+            entropyCalculator.calculateForAllQuestions();
+        }
         for (int j = 0; j < questions; j++) {
             h1 = calculateH1();
             v2 = calculateV2();
             removeAnswered(answered);
+            includeEntropy();
             FloatMatrix px = cmf.singleMatrixOperation(v2, NORMALIZE);
+            cmf.saveMatrix(px, "add.txt");
             double r = Math.random();
             FloatMatrix cumsum = cmf.singleMatrixOperation(px, CUMSUM);
             FloatMatrix l = lessThan(cumsum, r);
             int id = (int) sum(l);
             ids[j] = id;
-            if (entropy) {
+            if (filterMovies) {
                 entropyCalculator.getCalculatedValues()[id] = (int) xMatrix.get(0, id);
             }
-            System.out.println(Arrays.toString(ids));
+//            System.out.println(Arrays.toString(ids));
             answered[id] = (int) xMatrix.get(0, id);
-            if (entropy){
+            if (filterMovies){
                 entropyCalculator.filterMovies(id, (int) xMatrix.get(0, id));
             }
             vMatrix.put(id, 0, xMatrix.get(0, id));
             order[id].add(j);
-            System.out.println("Answering question: "+ id);
-            System.out.println("Answer: "+ xMatrix.get(0, id));
-            if (entropy) {
+            if (filterMovies) {
                 answered = entropyCalculator.answeredQuestions();
-//                System.out.println(entropyCalculator.answeredQuestionsAmount());
-//                List<Integer> answeredIds = entropyCalculator.getAnsweredQuestionsIds();
-//                for (Integer i : answeredIds) {
-//                    System.out.print(i + " ");
-//                }
-//                System.out.println("");
             }
-//            System.out.println(entropyCalculator.answeredQuestionsAmount());
         }
         int similiar = calculateAnswers(answered);
-        System.out.println(Arrays.toString(ids));
-        System.out.println("FINISH! " + similiar);
-//        System.out.println(entropyCalculator.answeredQuestions());
 
         return similiar;
 
@@ -310,7 +311,6 @@ public class RBM extends Thread {
                 j++;
             }
         }
-        System.out.println("Removed: " + j);
     }
 
     private int calculateAnswers(int[] answered) {
@@ -348,6 +348,28 @@ public class RBM extends Thread {
             if (i != -1) counter ++;
         }
         return counter;
+    }
+
+    private void includeEntropy() {
+        switch (selectionHelperType) {
+            case NONE:
+                break;
+            case MULTIPLE:
+                for (int i = 0; i < features; i ++) {
+                    v2.put(i, 0, v2.get(i, 0) * entropyCalculator.getEntropyForFeature(i));
+                }
+                break;
+            case ADD:
+                for (int i = 0; i < features; i ++) {
+                    v2.put(i, 0, v2.get(i, 0) + entropyCalculator.getEntropyForFeature(i));
+                }
+                break;
+            case ONLY_ENTROPY:
+                for (int i = 0; i < features; i ++) {
+                    v2.put(i, 0, entropyCalculator.getEntropyForFeature(i));
+                }
+                break;
+        }
     }
 
     private class Node {

@@ -104,7 +104,6 @@ public class RBM extends Thread {
             float time = (end - start) / 1000;
             mainFrame.setOther("Ostatni film byl jednym z: " + similar);
         }
-        System.out.println(mainInfo.toString());
         //statistics
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < features; i++) {
@@ -158,7 +157,6 @@ public class RBM extends Thread {
             removeAnswered(answered);
             includeEntropy();
             FloatMatrix px = cmf.singleMatrixOperation(v2, NORMALIZE);
-            cmf.saveMatrix(px, "add.txt");
             double r = Math.random();
             FloatMatrix cumsum = cmf.singleMatrixOperation(px, CUMSUM);
             FloatMatrix l = lessThan(cumsum, r);
@@ -370,6 +368,14 @@ public class RBM extends Thread {
                 }
                 break;
         }
+    }
+
+    public void setFilterMovies(boolean filterMovies) {
+        this.filterMovies = filterMovies;
+    }
+
+    public void setSelectionHelperType(SelectionHelperType selectionHelperType) {
+        this.selectionHelperType = selectionHelperType;
     }
 
     private class Node {

@@ -51,6 +51,7 @@ public class MainFrame extends javax.swing.JFrame {
     private String rbmSetName;
     private boolean filterMovies;
     private SelectionHelperType selectionHelperType;
+    private boolean isRunning;
 
     public MainFrame() {
         initComponents();
@@ -62,6 +63,7 @@ public class MainFrame extends javax.swing.JFrame {
         buttonGroup1.add(multipleEntropy);
         buttonGroup1.add(addEntropy);
         buttonGroup1.add(noEntropy);
+        isRunning = false;
         cmf = new CalculatedMatrixFactory();
     }
 
@@ -229,9 +231,12 @@ public class MainFrame extends javax.swing.JFrame {
         noEntropy.setSelected(true);
         noEntropy.setText("Nie uwzgledniaj");
 
-        ConfigurationComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         CofigurationButton.setText("Konfiguracja");
+        CofigurationButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CofigurationButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -495,6 +500,10 @@ public class MainFrame extends javax.swing.JFrame {
 //        rbm.executeForAll(true);
 //        rbm.start();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void CofigurationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CofigurationButtonActionPerformed
+        runConfiguration();
+    }//GEN-LAST:event_CofigurationButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -800,7 +809,41 @@ public class MainFrame extends javax.swing.JFrame {
         File folder = new File(path);
         File[] listOfFiles = folder.listFiles();
         for (File file : listOfFiles) {
-            RBMcomboBox.addItem(file.getName());
+            ConfigurationComboBox.addItem(file.getName());
+        }
+    }
+
+    private void runConfiguration() {
+        String configurationName = ConfigurationComboBox.getSelectedItem().toString();
+        String path = new File("").getAbsolutePath() + "\\run_configuration\\" + configurationName;
+        File f = new File(path);
+        try {
+            Scanner sc = new Scanner(f);
+            int runs = Integer.valueOf(sc.nextLine());
+            for (int i = 0; i < runs; i ++) {
+                String serializedM = sc.nextLine();
+                String rbmName = sc.nextLine();
+                questions = Integer.valueOf(sc.nextLine());
+                filterMovies = Boolean.valueOf(sc.nextLine());
+                String selectionHelper = sc.nextLine();
+                if ("none".equals(selectionHelper)) selectionHelperType = SelectionHelperType.NONE;
+                if ("add".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ADD;
+                if ("multiple".equals(selectionHelper)) selectionHelperType = SelectionHelperType.MULTIPLE;
+                if ("only".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
+                readFeaturesMatrix(serializedM);
+                initializeRBM(rbmName);
+                
+                this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
+                rbm.setFilterMovies(filterMovies);
+                rbm.setSelectionHelperType(selectionHelperType);
+                rbm.start();
+                rbm.join();
+
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

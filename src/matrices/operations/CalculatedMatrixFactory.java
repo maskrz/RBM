@@ -110,7 +110,7 @@ public class CalculatedMatrixFactory {
     }
 
     private FloatMatrix cumsum(FloatMatrix matrix) {
-        return matrix.cumulativeSumi();
+        return matrix.cumulativeSum();
     }
 
     private FloatMatrix normalizeMatrix(FloatMatrix matrix) {

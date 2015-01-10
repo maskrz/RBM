@@ -14,5 +14,7 @@ public enum SelectionHelperType {
     NONE,
     ADD,
     MULTIPLE,
-    ONLY_ENTROPY;
+    ONLY_ENTROPY,
+    RANKING,
+    PERCENTAGE_RANKING;
 }

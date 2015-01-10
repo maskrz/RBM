@@ -64,6 +64,7 @@ public class RBM extends Thread {
     EntropyCalculator entropyCalculator;
     private boolean filterMovies;
     SelectionHelperType selectionHelperType;
+    RankingHelper rankingHelper;
 
     public RBM(FloatMatrix a, FloatMatrix b, FloatMatrix w, int questions, FloatMatrix dataSet, MainFrame mainFrame) {
         this.a = a;
@@ -74,6 +75,7 @@ public class RBM extends Thread {
         this.dataSet = dataSet;
         this.mainFrame = mainFrame;
         this.entropyCalculator = new EntropyCalculator(dataSet.copy(dataSet));
+        rankingHelper = new RankingHelper();
         mainInfo = new StringBuilder();
         newLine = System.getProperty("line.separator");
         setParameters();
@@ -113,8 +115,9 @@ public class RBM extends Thread {
             sb.append(order[i]).append(System.getProperty("line.separator"));
         }
         Date time = new Date();
-        File f = new File("statistics"+time.getTime()+".txt");
-        File info = new File("mainInfo"+time.getTime()+".txt");
+        String inf = hiddenUnits+"-"+epochs+"-"+minibatch+"_";
+        File f = new File("statistics_"+inf+time.getTime()+".txt");
+        File info = new File("mainInfo_"+inf+time.getTime()+".txt");
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -142,6 +145,9 @@ public class RBM extends Thread {
      * @return
      */
     public int recognizeMovie(int movieId, boolean filterMovies, SelectionHelperType selectionHelperType) {
+        if (this.selectionHelperType == null) {
+            this.selectionHelperType = selectionHelperType;
+        }
         xMatrix = new FloatMatrix(generateXMatrix(movieId - 1));
         vMatrix = cmf.singleMatrixOperation(new FloatMatrix(features, 1), ZEROS);
         int[] ids = new int[questions];
@@ -367,6 +373,28 @@ public class RBM extends Thread {
                     v2.put(i, 0, entropyCalculator.getEntropyForFeature(i));
                 }
                 break;
+            case RANKING:
+                createAndSetRanking();
+                break;
+        }
+    }
+
+    private void createAndSetRanking() {
+        rankingHelper.setupHelper(v2,
+                new FloatMatrix(entropyCalculator.getActuallEntropy()),
+                entropyCalculator.getCalculatedValues(),
+                features - entropyCalculator.answeredQuestionsAmount());
+
+        for (int i = 0; i < features; i++) {
+            float value = v2.get(i, 0);
+            float v2Rank = rankingHelper.getV2Ranking(value);
+            value = entropyCalculator.getEntropyForFeature(i);
+            float entropyRank = rankingHelper.getEntropyRanking(value);
+            float u = rankingHelper.getActiveNumber();
+            float d = 10f * (v2Rank + entropyRank);
+            float rankingValue = u/d;
+            float powered = (float) Math.pow(rankingValue, 2);
+            v2.put(i, 0, powered);
         }
     }
 

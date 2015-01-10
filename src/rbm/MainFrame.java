@@ -63,6 +63,7 @@ public class MainFrame extends javax.swing.JFrame {
         buttonGroup1.add(multipleEntropy);
         buttonGroup1.add(addEntropy);
         buttonGroup1.add(noEntropy);
+        buttonGroup1.add(ranking);
         isRunning = false;
         cmf = new CalculatedMatrixFactory();
     }
@@ -124,6 +125,7 @@ public class MainFrame extends javax.swing.JFrame {
         noEntropy = new javax.swing.JRadioButton();
         ConfigurationComboBox = new javax.swing.JComboBox();
         CofigurationButton = new javax.swing.JButton();
+        ranking = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -238,6 +240,8 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        ranking.setText("Ranking");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -314,7 +318,8 @@ public class MainFrame extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(CofigurationButton)))
+                        .addComponent(CofigurationButton))
+                    .addComponent(ranking))
                 .addContainerGap(286, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -411,7 +416,9 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addComponent(onlyEntropy)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(noEntropy)
-                                .addGap(18, 18, 18)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ranking)
+                                .addGap(34, 34, 34)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(CofigurationButton))))
@@ -465,40 +472,9 @@ public class MainFrame extends javax.swing.JFrame {
 
 
         readRBMParameters();
-        String path = "1000-500-50_2014-11-22_17-05-49";
-        initializeRBM(path);
-        readFeaturesMatrix("serializedMatrix_full_data.ser");
-        questions = 30;
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
-//        rbm.executeForAll(false);
-        initializeRBM(path);
-        readFeaturesMatrix("serializedMatrix_full_data.ser");
-        questions = 30;
         this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
 //        rbm.executeForAll(true);
-        path = "1000-100-10_2014-11-20_02-12-47";
-        initializeRBM(path);
-        readFeaturesMatrix("serializedMatrix_full_data.ser");
-        questions = 30;
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
-//        rbm.executeForAll(false);
-        initializeRBM(path);
-        readFeaturesMatrix("serializedMatrix_full_data.ser");
-        questions = 30;
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
-//        rbm.executeForAll(true);
-        path = "1500-300-10_2014-11-22_15-26-12";
-        initializeRBM(path);
-        readFeaturesMatrix("serializedMatrix_full_data.ser");
-        questions = 30;
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
-//        rbm.executeForAll(false);
-        initializeRBM(path);
-        readFeaturesMatrix("serializedMatrix_full_data.ser");
-        questions = 30;
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
-//        rbm.executeForAll(true);
-//        rbm.start();
+        rbm.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void CofigurationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CofigurationButtonActionPerformed
@@ -585,6 +561,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel otherInfo;
     private javax.swing.JLabel progressInfo;
     private javax.swing.JTextField questionsAmount;
+    private javax.swing.JRadioButton ranking;
     private javax.swing.JButton recognizaMovieButton;
     private javax.swing.JButton requestError;
     private javax.swing.JButton teachRBM;
@@ -737,6 +714,7 @@ public class MainFrame extends javax.swing.JFrame {
         if (addEntropy.isSelected()) selectionHelperType = SelectionHelperType.ADD;
         if (multipleEntropy.isSelected()) selectionHelperType = SelectionHelperType.MULTIPLE;
         if (noEntropy.isSelected()) selectionHelperType = SelectionHelperType.NONE;
+        if (ranking.isSelected()) selectionHelperType = SelectionHelperType.RANKING;
         initializeRBM(rbmSetName);
         
     }
@@ -789,7 +767,7 @@ public class MainFrame extends javax.swing.JFrame {
         File aFile = new File(path + "\\a.txt");
         File bFile = new File(path + "\\b.txt");
         File wFile = new File(path + "\\w.txt");
-//        if (a == null) {
+        if (a == null) {
             int[] dimensions = getDimensions(aFile);
             a = new FloatMatrix(dimensions[0], dimensions[1]);
             readMatrix(a, aFile);
@@ -799,7 +777,7 @@ public class MainFrame extends javax.swing.JFrame {
             dimensions = getDimensions(wFile);
             w = new FloatMatrix(dimensions[0], dimensions[1]);
             readMatrix(w, wFile);
-//        }
+        }
         File folder = new File(path);
         System.out.println(folder.getName());
     }
@@ -828,8 +806,9 @@ public class MainFrame extends javax.swing.JFrame {
                 String selectionHelper = sc.nextLine();
                 if ("none".equals(selectionHelper)) selectionHelperType = SelectionHelperType.NONE;
                 if ("add".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ADD;
-                if ("multiple".equals(selectionHelper)) selectionHelperType = SelectionHelperType.MULTIPLE;
+                if ("multiply".equals(selectionHelper)) selectionHelperType = SelectionHelperType.MULTIPLE;
                 if ("only".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
+                if ("ranking".equals(selectionHelper)) selectionHelperType = SelectionHelperType.RANKING;
                 readFeaturesMatrix(serializedM);
                 initializeRBM(rbmName);
                 

@@ -135,6 +135,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="CofigurationButton" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="ranking" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="286" max="32767" attributes="0"/>
               </Group>
@@ -250,7 +251,9 @@
                                   <Component id="onlyEntropy" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="noEntropy" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="ranking" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="3" attributes="0">
                                       <Component id="ConfigurationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                                       <Component id="CofigurationButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -520,6 +523,11 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="CofigurationButtonActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="ranking">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Ranking"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>

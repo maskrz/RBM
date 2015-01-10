@@ -221,4 +221,8 @@ public class EntropyCalculator {
     public void setCalculatedValues(int[] calculatedValues) {
         this.calculatedValues = calculatedValues;
     }
+
+    public float[] getActuallEntropy() {
+        return actuallEntropy;
+    }
 }

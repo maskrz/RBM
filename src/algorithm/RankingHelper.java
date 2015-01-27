@@ -20,6 +20,8 @@ public class RankingHelper {
     private FloatMatrix v2Sorted;
     private FloatMatrix entropySorted;
     private int activeNumber;
+    private float maxEntropy;
+    private float maxV2;
 
     public void sortV2() {
         FloatMatrix temp = new FloatMatrix(1, activeNumber);
@@ -31,6 +33,9 @@ public class RankingHelper {
             }
         }
         v2Sorted = temp.sortRows();
+        if(activeNumber > 0) {
+            maxV2 = v2Sorted.get(0, activeNumber - 1);
+        }
     }
 
     private void sortEntropy() {
@@ -43,6 +48,10 @@ public class RankingHelper {
             }
         }
         entropySorted = temp.sortRows();
+        // FIXME - check also 36 - add stop after find movie
+        if (activeNumber > 0) {
+            maxEntropy = entropySorted.get(0, activeNumber - 1);
+        }
     }
 
     public void setupHelper(FloatMatrix v2, FloatMatrix entropy, int[] calculatedValues, int activeNumber) {
@@ -76,5 +85,21 @@ public class RankingHelper {
 
     public int getActiveNumber() {
         return activeNumber;
+    }
+
+    float getV2PercentageRanking(float value) {
+        return value/maxV2;
+    }
+
+    float getEntropyPercentageRanking(float value) {
+        return value/maxEntropy;
+    }
+
+    public float getMaxV2() {
+        return this.maxV2;
+    }
+
+    public float getMaxEntropy() {
+        return this.maxEntropy;
     }
 }

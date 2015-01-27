@@ -115,7 +115,7 @@ public class RBM extends Thread {
             sb.append(order[i]).append(System.getProperty("line.separator"));
         }
         Date time = new Date();
-        String inf = hiddenUnits+"-"+epochs+"-"+minibatch+"_";
+        String inf = selectionHelperType+"-"+questions+"-"+features+"_";
         File f = new File("statistics_"+inf+time.getTime()+".txt");
         File info = new File("mainInfo_"+inf+time.getTime()+".txt");
         try {
@@ -376,6 +376,11 @@ public class RBM extends Thread {
             case RANKING:
                 createAndSetRanking();
                 break;
+            case PERCENTAGE_RANKING:
+                createAndSetPercentageRanking();
+                break;
+            default :
+                throw new RuntimeException("BAD TYPE");
         }
     }
 
@@ -394,6 +399,23 @@ public class RBM extends Thread {
             float d = 10f * (v2Rank + entropyRank);
             float rankingValue = u/d;
             float powered = (float) Math.pow(rankingValue, 2);
+            v2.put(i, 0, powered);
+        }
+    }
+
+    private void createAndSetPercentageRanking() {
+        rankingHelper.setupHelper(v2,
+                new FloatMatrix(entropyCalculator.getActuallEntropy()),
+                entropyCalculator.getCalculatedValues(),
+                features - entropyCalculator.answeredQuestionsAmount());
+
+        for (int i = 0; i < features; i++) {
+            float value = v2.get(i, 0);
+            float v2Rank = rankingHelper.getV2PercentageRanking(value);
+            value = entropyCalculator.getEntropyForFeature(i);
+            float entropyRank = rankingHelper.getEntropyPercentageRanking(value);
+            float d = 2f * (v2Rank + entropyRank);
+            float powered = (float) Math.pow(d, 5);
             v2.put(i, 0, powered);
         }
     }

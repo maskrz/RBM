@@ -64,6 +64,7 @@ public class MainFrame extends javax.swing.JFrame {
         buttonGroup1.add(addEntropy);
         buttonGroup1.add(noEntropy);
         buttonGroup1.add(ranking);
+        buttonGroup1.add(percentage_ranking);
         isRunning = false;
         cmf = new CalculatedMatrixFactory();
     }
@@ -126,6 +127,7 @@ public class MainFrame extends javax.swing.JFrame {
         ConfigurationComboBox = new javax.swing.JComboBox();
         CofigurationButton = new javax.swing.JButton();
         ranking = new javax.swing.JRadioButton();
+        percentage_ranking = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -242,6 +244,8 @@ public class MainFrame extends javax.swing.JFrame {
 
         ranking.setText("Ranking");
 
+        percentage_ranking.setText("Ranking Procentowy");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -319,7 +323,8 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(CofigurationButton))
-                    .addComponent(ranking))
+                    .addComponent(ranking)
+                    .addComponent(percentage_ranking))
                 .addContainerGap(286, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -418,7 +423,9 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addComponent(noEntropy)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ranking)
-                                .addGap(34, 34, 34)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(percentage_ranking)
+                                .addGap(11, 11, 11)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(CofigurationButton))))
@@ -559,6 +566,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JRadioButton noEntropy;
     private javax.swing.JRadioButton onlyEntropy;
     private javax.swing.JLabel otherInfo;
+    private javax.swing.JRadioButton percentage_ranking;
     private javax.swing.JLabel progressInfo;
     private javax.swing.JTextField questionsAmount;
     private javax.swing.JRadioButton ranking;
@@ -715,6 +723,7 @@ public class MainFrame extends javax.swing.JFrame {
         if (multipleEntropy.isSelected()) selectionHelperType = SelectionHelperType.MULTIPLE;
         if (noEntropy.isSelected()) selectionHelperType = SelectionHelperType.NONE;
         if (ranking.isSelected()) selectionHelperType = SelectionHelperType.RANKING;
+        if (percentage_ranking.isSelected()) selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
         initializeRBM(rbmSetName);
         
     }
@@ -767,7 +776,7 @@ public class MainFrame extends javax.swing.JFrame {
         File aFile = new File(path + "\\a.txt");
         File bFile = new File(path + "\\b.txt");
         File wFile = new File(path + "\\w.txt");
-        if (a == null) {
+//        if (a == null) {
             int[] dimensions = getDimensions(aFile);
             a = new FloatMatrix(dimensions[0], dimensions[1]);
             readMatrix(a, aFile);
@@ -777,7 +786,7 @@ public class MainFrame extends javax.swing.JFrame {
             dimensions = getDimensions(wFile);
             w = new FloatMatrix(dimensions[0], dimensions[1]);
             readMatrix(w, wFile);
-        }
+//        }
         File folder = new File(path);
         System.out.println(folder.getName());
     }
@@ -809,6 +818,7 @@ public class MainFrame extends javax.swing.JFrame {
                 if ("multiply".equals(selectionHelper)) selectionHelperType = SelectionHelperType.MULTIPLE;
                 if ("only".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
                 if ("ranking".equals(selectionHelper)) selectionHelperType = SelectionHelperType.RANKING;
+                if ("percentage_ranking".equals(selectionHelper)) selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
                 readFeaturesMatrix(serializedM);
                 initializeRBM(rbmName);
                 
@@ -817,7 +827,7 @@ public class MainFrame extends javax.swing.JFrame {
                 rbm.setSelectionHelperType(selectionHelperType);
                 rbm.start();
                 rbm.join();
-
+                featuresMatrix = null;
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);

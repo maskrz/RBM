@@ -91,6 +91,7 @@ public class RBMtrain extends Thread {
             int epochs, int minibatch, float alpha, MainFrame mainFrame) {
         cmf = new CalculatedMatrixFactory();
         this.trainingSet = trainingSet;
+        replaceUncertain();
         this.xVal = xVal;
         this.hiddenUnits = hiddenUnits;
         this.epochs = epochs;
@@ -380,6 +381,17 @@ public class RBMtrain extends Thread {
 
     public void setDataSetName(String dataSetname) {
         this.dataSetName = dataSetname;
+    }
+
+    private void replaceUncertain() {
+        for (int i = 0; i <  features; i++) {
+            for (int j = 0; j < concepts; j++) {
+                double r = Math.random();
+                if (trainingSet.get(i, j) == -1f) {
+                    trainingSet.put(i, j, 0.5f);
+                }
+            }
+        }
     }
 
     private class Node {

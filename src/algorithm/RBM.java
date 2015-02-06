@@ -73,6 +73,7 @@ public class RBM extends Thread {
         this.questions = questions;
         this.cmf = new CalculatedMatrixFactory();
         this.dataSet = dataSet;
+        replaceUncertain();
         this.mainFrame = mainFrame;
         this.entropyCalculator = new EntropyCalculator(dataSet.copy(dataSet));
         rankingHelper = new RankingHelper();
@@ -96,7 +97,7 @@ public class RBM extends Thread {
         for (int i = 1; i < concepts + 1; i++) {
             System.out.println("Film nr: " + i);
             this.entropyCalculator = new EntropyCalculator(dataSet.copy(dataSet));
-            
+
             mainInfo.append(i - 1).append(newLine);
             mainFrame.setProgress("Film nr " + i + " z " + concepts);
             long start = System.currentTimeMillis();
@@ -110,14 +111,13 @@ public class RBM extends Thread {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < features; i++) {
             sb.append(i).append(";");
-            //sb.append(vector.features.get(i).getQuestion()).append(";");
             sb.append(order[i].getListLength()).append(";");
             sb.append(order[i]).append(System.getProperty("line.separator"));
         }
         Date time = new Date();
-        String inf = selectionHelperType+"-"+questions+"-"+features+"_";
-        File f = new File("statistics_"+inf+time.getTime()+".txt");
-        File info = new File("mainInfo_"+inf+time.getTime()+".txt");
+        String inf = selectionHelperType + "-" + questions + "-" + features + "_";
+        File f = new File("statistics_" + inf + time.getTime() + ".txt");
+        File info = new File("mainInfo_" + inf + time.getTime() + ".txt");
         try {
             if (!f.exists()) {
                 f.createNewFile();
@@ -139,9 +139,10 @@ public class RBM extends Thread {
 
     /**
      * recognize movie using questions selection based on RBM
-     * 
+     *
      * @param movieId
      * @param filterMovies
+     * @param selectionHelperType
      * @return
      */
     public int recognizeMovie(int movieId, boolean filterMovies, SelectionHelperType selectionHelperType) {
@@ -168,15 +169,25 @@ public class RBM extends Thread {
             FloatMatrix l = lessThan(cumsum, r);
             int id = (int) sum(l);
             ids[j] = id;
-            if (filterMovies) {
-                entropyCalculator.getCalculatedValues()[id] = (int) xMatrix.get(0, id);
+
+            // uncertainty of answer
+            // TODO need refactoring!
+            double param = Math.random();
+            float answer = xMatrix.get(0, id);
+            if (param > 1) {
+                answer = 0.5f;
+                answered[id] = (int) answer;
+                vMatrix.put(id, 0, answer);
+            } else {
+                if (filterMovies) {
+                    entropyCalculator.getCalculatedValues()[id] = (int) answer;
+                }
+                answered[id] = (int) answer;
+                if (filterMovies) {
+                    entropyCalculator.filterMovies(id, (int) answer);
+                }
+                vMatrix.put(id, 0, answer);
             }
-//            System.out.println(Arrays.toString(ids));
-            answered[id] = (int) xMatrix.get(0, id);
-            if (filterMovies){
-                entropyCalculator.filterMovies(id, (int) xMatrix.get(0, id));
-            }
-            vMatrix.put(id, 0, xMatrix.get(0, id));
             order[id].add(j);
             if (filterMovies) {
                 answered = entropyCalculator.answeredQuestions();
@@ -309,7 +320,7 @@ public class RBM extends Thread {
 
     private void removeAnswered(int[] answered) {
         int j = 0;
-        for (int i = 0; i < features; i ++) {
+        for (int i = 0; i < features; i++) {
             if (answered[i] != -1) {
                 v2.put(i, 0, 0);
                 j++;
@@ -325,7 +336,7 @@ public class RBM extends Thread {
             int j = 0;
             boolean match = true;
             while (j < features) {
-                if (answered[j] != -1 && dataSet.get(i, j) != answered[j]) {
+                if (answered[j] != -1 && (dataSet.get(i, j) != answered[j] && dataSet.get(i, j) != 0.5f)) {
                     match = false;
                 }
                 j++;
@@ -349,7 +360,9 @@ public class RBM extends Thread {
     private int countAnswered(int[] answered) {
         int counter = 0;
         for (int i : answered) {
-            if (i != -1) counter ++;
+            if (i != -1) {
+                counter++;
+            }
         }
         return counter;
     }
@@ -359,17 +372,17 @@ public class RBM extends Thread {
             case NONE:
                 break;
             case MULTIPLE:
-                for (int i = 0; i < features; i ++) {
+                for (int i = 0; i < features; i++) {
                     v2.put(i, 0, v2.get(i, 0) * entropyCalculator.getEntropyForFeature(i));
                 }
                 break;
             case ADD:
-                for (int i = 0; i < features; i ++) {
+                for (int i = 0; i < features; i++) {
                     v2.put(i, 0, v2.get(i, 0) + entropyCalculator.getEntropyForFeature(i));
                 }
                 break;
             case ONLY_ENTROPY:
-                for (int i = 0; i < features; i ++) {
+                for (int i = 0; i < features; i++) {
                     v2.put(i, 0, entropyCalculator.getEntropyForFeature(i));
                 }
                 break;
@@ -379,7 +392,7 @@ public class RBM extends Thread {
             case PERCENTAGE_RANKING:
                 createAndSetPercentageRanking();
                 break;
-            default :
+            default:
                 throw new RuntimeException("BAD TYPE");
         }
     }
@@ -397,7 +410,7 @@ public class RBM extends Thread {
             float entropyRank = rankingHelper.getEntropyRanking(value);
             float u = rankingHelper.getActiveNumber();
             float d = 10f * (v2Rank + entropyRank);
-            float rankingValue = u/d;
+            float rankingValue = u / d;
             float powered = (float) Math.pow(rankingValue, 2);
             v2.put(i, 0, powered);
         }
@@ -426,6 +439,17 @@ public class RBM extends Thread {
 
     public void setSelectionHelperType(SelectionHelperType selectionHelperType) {
         this.selectionHelperType = selectionHelperType;
+    }
+
+    private void replaceUncertain() {
+        for (int i = 0; i < dataSet.columns; i++) {
+            for (int j = 0; j < dataSet.rows; j++) {
+                double r = Math.random();
+                if (dataSet.get(i, j) == -1f) {
+                    dataSet.put(i, j, 0.5f);
+                }
+            }
+        }
     }
 
     private class Node {

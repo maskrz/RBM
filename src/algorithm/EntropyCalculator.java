@@ -120,7 +120,7 @@ public class EntropyCalculator {
     }
 
     /**
-     * filtr movies list - remove movies which do not match answers
+     * filter movies list - remove movies which do not match answers
      * then extract new answers
      * @param questionId
      * @param answer
@@ -128,7 +128,7 @@ public class EntropyCalculator {
     public void filterMovies(int questionId, int answer) {
 //        System.out.println(matchingMoviesAmount);
         for (int i = 0; i < rows; i++) {
-            if (getMovies().get(i, questionId) != answer) {
+            if ((getMovies().get(i, questionId) != answer) && (getMovies().get(i, questionId) != 0.5)) {
                 removeMovie(i);
             }
         }

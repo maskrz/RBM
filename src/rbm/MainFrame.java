@@ -450,6 +450,7 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void teachRBMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_teachRBMActionPerformed
+//        generateUncertainSet();
         zeroLabels();
         readTeachParameters();
         readFeaturesMatrix(dataSetname);
@@ -476,7 +477,6 @@ public class MainFrame extends javax.swing.JFrame {
         readFeaturesMatrix(dataSetRBMname);
         this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
         rbm.executeForAll(filterMovies, selectionHelperType);
-
 
         readRBMParameters();
         this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
@@ -607,6 +607,26 @@ public class MainFrame extends javax.swing.JFrame {
         dataSetname = dataSetsComboBox.getSelectedItem().toString();
     }
 
+    private void generateUncertainSet() {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("peopleGroups.ser"));
+            FeaturesMatrix fm = (FeaturesMatrix) ois.readObject();
+            FloatMatrix floatMatrix = new FloatMatrix(toFloat(fm.getFeatures()));
+            for (int i = 0; i < floatMatrix.columns; i++) {
+                for (int j = 0; j < floatMatrix.rows; j++) {
+                    double r = Math.random();
+                    if (r > 0.5) {
+                        floatMatrix.put(i, j, -1);
+                    }
+                }
+            }
+            fm.setFeatures(floatMatrix.toIntArray2());
+            fm.serialize();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void readFeaturesMatrix(String dataSet) {
         if (featuresMatrix == null) {
             try {
@@ -718,14 +738,26 @@ public class MainFrame extends javax.swing.JFrame {
         dataSetRBMname = dataSetsComboBoxRBM.getSelectedItem().toString();
         rbmSetName = RBMcomboBox.getSelectedItem().toString();
         filterMovies = filterMovieCheckBox.isSelected();
-        if (onlyEntropy.isSelected()) selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
-        if (addEntropy.isSelected()) selectionHelperType = SelectionHelperType.ADD;
-        if (multipleEntropy.isSelected()) selectionHelperType = SelectionHelperType.MULTIPLE;
-        if (noEntropy.isSelected()) selectionHelperType = SelectionHelperType.NONE;
-        if (ranking.isSelected()) selectionHelperType = SelectionHelperType.RANKING;
-        if (percentage_ranking.isSelected()) selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
+        if (onlyEntropy.isSelected()) {
+            selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
+        }
+        if (addEntropy.isSelected()) {
+            selectionHelperType = SelectionHelperType.ADD;
+        }
+        if (multipleEntropy.isSelected()) {
+            selectionHelperType = SelectionHelperType.MULTIPLE;
+        }
+        if (noEntropy.isSelected()) {
+            selectionHelperType = SelectionHelperType.NONE;
+        }
+        if (ranking.isSelected()) {
+            selectionHelperType = SelectionHelperType.RANKING;
+        }
+        if (percentage_ranking.isSelected()) {
+            selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
+        }
         initializeRBM(rbmSetName);
-        
+
     }
 
     private void readMatrix(FloatMatrix matrix, File file) {
@@ -777,15 +809,15 @@ public class MainFrame extends javax.swing.JFrame {
         File bFile = new File(path + "\\b.txt");
         File wFile = new File(path + "\\w.txt");
 //        if (a == null) {
-            int[] dimensions = getDimensions(aFile);
-            a = new FloatMatrix(dimensions[0], dimensions[1]);
-            readMatrix(a, aFile);
-            dimensions = getDimensions(bFile);
-            b = new FloatMatrix(dimensions[0], dimensions[1]);
-            readMatrix(b, bFile);
-            dimensions = getDimensions(wFile);
-            w = new FloatMatrix(dimensions[0], dimensions[1]);
-            readMatrix(w, wFile);
+        int[] dimensions = getDimensions(aFile);
+        a = new FloatMatrix(dimensions[0], dimensions[1]);
+        readMatrix(a, aFile);
+        dimensions = getDimensions(bFile);
+        b = new FloatMatrix(dimensions[0], dimensions[1]);
+        readMatrix(b, bFile);
+        dimensions = getDimensions(wFile);
+        w = new FloatMatrix(dimensions[0], dimensions[1]);
+        readMatrix(w, wFile);
 //        }
         File folder = new File(path);
         System.out.println(folder.getName());
@@ -807,21 +839,33 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             Scanner sc = new Scanner(f);
             int runs = Integer.valueOf(sc.nextLine());
-            for (int i = 0; i < runs; i ++) {
+            for (int i = 0; i < runs; i++) {
                 String serializedM = sc.nextLine();
                 String rbmName = sc.nextLine();
                 questions = Integer.valueOf(sc.nextLine());
                 filterMovies = Boolean.valueOf(sc.nextLine());
                 String selectionHelper = sc.nextLine();
-                if ("none".equals(selectionHelper)) selectionHelperType = SelectionHelperType.NONE;
-                if ("add".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ADD;
-                if ("multiply".equals(selectionHelper)) selectionHelperType = SelectionHelperType.MULTIPLE;
-                if ("only".equals(selectionHelper)) selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
-                if ("ranking".equals(selectionHelper)) selectionHelperType = SelectionHelperType.RANKING;
-                if ("percentage_ranking".equals(selectionHelper)) selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
+                if ("none".equals(selectionHelper)) {
+                    selectionHelperType = SelectionHelperType.NONE;
+                }
+                if ("add".equals(selectionHelper)) {
+                    selectionHelperType = SelectionHelperType.ADD;
+                }
+                if ("multiply".equals(selectionHelper)) {
+                    selectionHelperType = SelectionHelperType.MULTIPLE;
+                }
+                if ("only".equals(selectionHelper)) {
+                    selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
+                }
+                if ("ranking".equals(selectionHelper)) {
+                    selectionHelperType = SelectionHelperType.RANKING;
+                }
+                if ("percentage_ranking".equals(selectionHelper)) {
+                    selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
+                }
                 readFeaturesMatrix(serializedM);
                 initializeRBM(rbmName);
-                
+
                 this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
                 rbm.setFilterMovies(filterMovies);
                 rbm.setSelectionHelperType(selectionHelperType);

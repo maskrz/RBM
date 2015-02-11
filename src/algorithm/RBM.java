@@ -159,10 +159,13 @@ public class RBM extends Thread {
             entropyCalculator.calculateForAllQuestions();
         }
         for (int j = 0; j < questions; j++) {
+            System.out.println("---- QUESTION no. " + j + " ----");
             h1 = calculateH1();
             v2 = calculateV2();
             removeAnswered(answered);
             includeEntropy();
+            funkcjaKuby();
+//            calculateFreeEnergy(vMatrix);
             FloatMatrix px = cmf.singleMatrixOperation(v2, NORMALIZE);
             double r = Math.random();
             FloatMatrix cumsum = cmf.singleMatrixOperation(px, CUMSUM);
@@ -174,6 +177,8 @@ public class RBM extends Thread {
             // TODO need refactoring!
             double param = Math.random();
             float answer = xMatrix.get(0, id);
+
+            System.out.println("Question " + id + " answer "+ answer);
             if (param > 1) {
                 answer = 0.5f;
                 answered[id] = (int) answer;
@@ -442,8 +447,8 @@ public class RBM extends Thread {
     }
 
     private void replaceUncertain() {
-        for (int i = 0; i < dataSet.columns; i++) {
-            for (int j = 0; j < dataSet.rows; j++) {
+        for (int i = 0; i < dataSet.rows; i++) {
+            for (int j = 0; j < dataSet.columns; j++) {
                 double r = Math.random();
                 if (dataSet.get(i, j) == -1f) {
                     dataSet.put(i, j, 0.5f);
@@ -475,5 +480,66 @@ public class RBM extends Thread {
             }
             return result;
         }
+    }
+
+    private void funkcjaKuby() {
+        for(int i = 0; i < features; i++) {
+            FloatMatrix withOne = vMatrix.dup();
+            withOne.put(i, 0, 1f);
+            FloatMatrix withZero = vMatrix.dup();
+            withZero.put(i, 0, 0f);
+            float myMi = calculateMI((float)-calculateFreeEnergy(withOne), (float)-calculateFreeEnergy(withZero));
+            double pp = getExp(withOne);
+            double pm = getExp(withZero);
+            double mi = pp / (pp + pm);
+            System.out.println("Regular: " + mi);
+            System.out.println("Own: " + myMi);
+            double o1 = (-mi * Math.log10(mi));
+            double o2 = 1 - mi;
+            double o3 = Math.log10(1- mi);
+            double o4 = o2*o3;
+            double res = o1 - o4;
+        }
+    }
+
+    private double getExp(FloatMatrix currentMatrix) {
+        double result = Math.exp(-calculateFreeEnergy(currentMatrix));
+        return result;
+    }
+
+    private float calculateFreeEnergy(FloatMatrix currentMatrix) {
+        FloatMatrix vCopy = currentMatrix.dup();
+        // -b^t*x
+        FloatMatrix t1 = a.transpose().mmul(vCopy);
+
+        float sum = 0;
+        for (int i = 0; i < w.columns; i++) {
+            // W.j ^t
+            FloatMatrix column = w.getColumn(i);
+            FloatMatrix m2 = column.transpose();
+            //m2 * x
+            FloatMatrix m3 = m2.mmul(vCopy);
+
+            // cj - row
+            FloatMatrix m4 = b.getRow(i);
+
+            //before exp
+            FloatMatrix m5 = m4.add(m3);
+
+            float exp = (float) Math.exp(m5.get(0, 0));
+            float beforeLog = 1 + exp;
+
+            float log = (float) Math.log10(beforeLog);
+
+            sum+= log;
+        }
+        float btx = -t1.get(0, 0);
+        return btx - sum;
+
+    }
+
+    public static float calculateMI(float pp, float pm) {
+        float denominator = (float) (1 + Math.exp(pm - pp));
+        return 1/denominator;
     }
 }

@@ -450,7 +450,7 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void teachRBMActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_teachRBMActionPerformed
-//        generateUncertainSet();
+//        prepareTestData();
         zeroLabels();
         readTeachParameters();
         readFeaturesMatrix(dataSetname);
@@ -878,5 +878,25 @@ public class MainFrame extends javax.swing.JFrame {
         } catch (InterruptedException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void prepareTestData() {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("peopleGroups.ser"));
+            FeaturesMatrix fm = (FeaturesMatrix) ois.readObject();
+            float[][] testData =
+            {{0f,0f,1f,0f,0f},
+                {0f,1f,0f,1f,0f},
+                {0f,0f,0f,0f,1f},
+                {1f,1f,0f,1f,1f},
+                {0f,1f,1f,1f,0f},
+                {1f,0f,0f,1f,1f}};
+            FloatMatrix floatMatrix = new FloatMatrix(testData);
+            fm.setFeatures(floatMatrix.toIntArray2());
+            fm.serialize();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 }

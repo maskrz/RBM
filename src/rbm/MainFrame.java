@@ -477,11 +477,6 @@ public class MainFrame extends javax.swing.JFrame {
         readFeaturesMatrix(dataSetRBMname);
         this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
         rbm.executeForAll(filterMovies, selectionHelperType);
-
-        readRBMParameters();
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
-//        rbm.executeForAll(true);
-        rbm.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void CofigurationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CofigurationButtonActionPerformed

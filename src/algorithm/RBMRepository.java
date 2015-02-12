@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package algorithm;
+
+import matrices.operations.CalculatedMatrixFactory;
+import org.jblas.FloatMatrix;
 
 /**
  *
@@ -12,4 +14,217 @@ package algorithm;
  */
 public class RBMRepository {
 
+    private FloatMatrix a;
+    private FloatMatrix b;
+    private FloatMatrix w;
+    private CalculatedMatrixFactory cmf;
+    private FloatMatrix dataSet;
+    private int features;
+    private int concepts;
+    private Node[] order;
+    private FloatMatrix xMatrix;
+    private FloatMatrix vMatrix;
+    private EntropyCalculator entropyCalculator;
+    private int questions;
+    private int[] ids;
+    private int[] answered;
+    private boolean filterMovies;
+    private FloatMatrix h1;
+    private FloatMatrix v2;
+    private SelectionHelperType selectionHelperType;
+    private RankingHelper rankingHelper;
+
+    public RBMRepository(FloatMatrix a, FloatMatrix b, FloatMatrix w, FloatMatrix dataSet, int questions) {
+        this.a = a;
+        this.b = b;
+        this.w = w;
+        this.questions = questions;
+        this.cmf = new CalculatedMatrixFactory();
+        this.dataSet = dataSet;
+        this.entropyCalculator = new EntropyCalculator(getDataSet());
+//        rankingHelper = new RankingHelper();
+        setParameters();
+        this.order = new Node[features];
+        for (int i = 0; i < features; i++) {
+            order[i] = new Node();
+        }
+        rankingHelper = new RankingHelper();
+    }
+
+    private void setParameters() {
+        this.setFeatures(getA().rows);
+        this.setConcepts(getDataSet().rows);
+    }
+
+    public FloatMatrix getA() {
+        return a;
+    }
+
+    public void setA(FloatMatrix a) {
+        this.a = a;
+    }
+
+    public FloatMatrix getB() {
+        return b;
+    }
+
+    public void setB(FloatMatrix b) {
+        this.b = b;
+    }
+
+    public FloatMatrix getW() {
+        return w;
+    }
+
+    public void setW(FloatMatrix w) {
+        this.w = w;
+    }
+
+    public CalculatedMatrixFactory getCmf() {
+        return cmf;
+    }
+
+    public void setCmf(CalculatedMatrixFactory cmf) {
+        this.cmf = cmf;
+    }
+
+    public FloatMatrix getDataSet() {
+        return dataSet;
+    }
+
+    public void setDataSet(FloatMatrix dataSet) {
+        this.dataSet = dataSet;
+    }
+
+    public int getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(int features) {
+        this.features = features;
+    }
+
+    public int getConcepts() {
+        return concepts;
+    }
+
+    public void setConcepts(int concepts) {
+        this.concepts = concepts;
+    }
+
+    public Node[] getOrder() {
+        return order;
+    }
+
+    public void setOrder(Node[] order) {
+        this.order = order;
+    }
+
+    public FloatMatrix getXMatrix() {
+        return getxMatrix();
+    }
+
+    public void setXMatrix(FloatMatrix xMatrix) {
+        this.setxMatrix(xMatrix);
+    }
+
+    public FloatMatrix getVMatrix() {
+        return getvMatrix();
+    }
+
+    public void setVMatrix(FloatMatrix vMatrix) {
+        this.setvMatrix(vMatrix);
+    }
+
+    public FloatMatrix getxMatrix() {
+        return xMatrix;
+    }
+
+    public void setxMatrix(FloatMatrix xMatrix) {
+        this.xMatrix = xMatrix;
+    }
+
+    public FloatMatrix getvMatrix() {
+        return vMatrix;
+    }
+
+    public void setvMatrix(FloatMatrix vMatrix) {
+        this.vMatrix = vMatrix;
+    }
+
+    public EntropyCalculator getEntropyCalculator() {
+        return entropyCalculator;
+    }
+
+    public void setEntropyCalculator(EntropyCalculator entropyCalculator) {
+        this.entropyCalculator = entropyCalculator;
+    }
+
+    int getQuestions() {
+        return questions;
+    }
+
+    boolean getFilterMovies() {
+        return this.isFilterMovies();
+    }
+
+    void setFilterMovies(boolean filterMovies) {
+        this.filterMovies = filterMovies;
+    }
+
+    public void setQuestions(int questions) {
+        this.questions = questions;
+    }
+
+    public int[] getIds() {
+        return ids;
+    }
+
+    public void setIds(int[] ids) {
+        this.ids = ids;
+    }
+
+    public int[] getAnswered() {
+        return answered;
+    }
+
+    public void setAnswered(int[] answered) {
+        this.answered = answered;
+    }
+
+    public boolean isFilterMovies() {
+        return filterMovies;
+    }
+
+    public FloatMatrix getH1() {
+        return h1;
+    }
+
+    public void setH1(FloatMatrix h1) {
+        this.h1 = h1;
+    }
+
+    public FloatMatrix getV2() {
+        return v2;
+    }
+
+    public void setV2(FloatMatrix v2) {
+        this.v2 = v2;
+    }
+
+    void setSelectionHelperType(SelectionHelperType selectionHelperType) {
+        this.selectionHelperType = selectionHelperType;
+    }
+
+    SelectionHelperType getSelectionHelperType() {
+        return this.selectionHelperType;
+    }
+
+    public RankingHelper getRankingHelper() {
+        return rankingHelper;
+    }
+
+    public void setRankingHelper(RankingHelper rankingHelper) {
+        this.rankingHelper = rankingHelper;
+    }
 }

@@ -98,7 +98,6 @@ public class EntropyCalculator {
         float positive = positiveAnswers(questionId);
 
         if (positive == 0.0 || matchingMoviesAmount == positive) {
-//            System.out.println("ANSWERED QUESTION!" + questionId);
             getCalculatedValues()[questionId] = positive == 0.0 ? 0 : 1;
             return 0;
         }

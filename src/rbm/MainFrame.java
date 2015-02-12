@@ -6,6 +6,7 @@
 package rbm;
 
 import algorithm.RBM;
+import algorithm.RBMRepository;
 import algorithm.RBMtrain;
 import algorithm.SelectionHelperType;
 import java.io.File;
@@ -468,14 +469,16 @@ public class MainFrame extends javax.swing.JFrame {
     private void recognizaMovieButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recognizaMovieButtonActionPerformed
         readRBMParameters();
         readFeaturesMatrix(dataSetRBMname);
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
+        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+        this.rbm = new RBM(repository, this);
         rbm.recognizeMovie(movieId, filterMovies, selectionHelperType);
     }//GEN-LAST:event_recognizaMovieButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         readRBMParameters();
         readFeaturesMatrix(dataSetRBMname);
-        this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
+        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+        this.rbm = new RBM(repository, this);
         rbm.executeForAll(filterMovies, selectionHelperType);
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -861,7 +864,10 @@ public class MainFrame extends javax.swing.JFrame {
                 readFeaturesMatrix(serializedM);
                 initializeRBM(rbmName);
 
-                this.rbm = new RBM(a, b, w, questions, featuresMatrix, this);
+        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+        this.rbm = new RBM(repository, this);
+
+        //TODO
                 rbm.setFilterMovies(filterMovies);
                 rbm.setSelectionHelperType(selectionHelperType);
                 rbm.start();

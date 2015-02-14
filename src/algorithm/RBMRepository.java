@@ -121,34 +121,18 @@ public class RBMRepository {
     }
 
     public FloatMatrix getXMatrix() {
-        return getxMatrix();
-    }
-
-    public void setXMatrix(FloatMatrix xMatrix) {
-        this.setxMatrix(xMatrix);
-    }
-
-    public FloatMatrix getVMatrix() {
-        return getvMatrix();
-    }
-
-    public void setVMatrix(FloatMatrix vMatrix) {
-        this.setvMatrix(vMatrix);
-    }
-
-    public FloatMatrix getxMatrix() {
         return xMatrix;
     }
 
-    public void setxMatrix(FloatMatrix xMatrix) {
+    public void setXMatrix(FloatMatrix xMatrix) {
         this.xMatrix = xMatrix;
     }
 
-    public FloatMatrix getvMatrix() {
+    public FloatMatrix getVMatrix() {
         return vMatrix;
     }
 
-    public void setvMatrix(FloatMatrix vMatrix) {
+    public void setVMatrix(FloatMatrix vMatrix) {
         this.vMatrix = vMatrix;
     }
 

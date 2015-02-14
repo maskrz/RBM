@@ -16,5 +16,6 @@ public enum SelectionHelperType {
     MULTIPLE,
     ONLY_ENTROPY,
     RANKING,
-    PERCENTAGE_RANKING;
+    PERCENTAGE_RANKING,
+    BOLTZMANN_ENTROPY;
 }

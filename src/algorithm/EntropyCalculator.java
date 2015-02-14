@@ -21,6 +21,7 @@ public class EntropyCalculator {
     private int[] calculatedValues;
     private int matchingMoviesAmount;
     private float[] actuallEntropy;
+    private ArrayList<Integer> unknownAnswers;
     int rows;
     int columns;
 
@@ -29,11 +30,16 @@ public class EntropyCalculator {
         rows = movies.rows;
         columns = movies.columns;
         actuallEntropy = new float[columns];
+        unknownAnswers = new ArrayList<Integer>();
+        for (int i = 0; i < columns; i++) {
+            unknownAnswers.add(i);
+        }
         initializeMatches();
     }
 
     /**
      * remove movie with given id from matching movies list
+     *
      * @param id
      */
     protected void removeMovie(int id) {
@@ -44,8 +50,8 @@ public class EntropyCalculator {
     }
 
     /**
-     * initialize all arrays - matching movies, calculated values
-     * set matching movies amount to all movies amount
+     * initialize all arrays - matching movies, calculated values set matching
+     * movies amount to all movies amount
      */
     protected void initializeMatches() {
         setMatchingMovies(new boolean[rows]);
@@ -57,15 +63,18 @@ public class EntropyCalculator {
 
     /**
      * calculate logarithm with base 2 from given x
+     *
      * @param x
      * @return
      */
     protected float calcLogarithm(float x) {
+//        return (float) Math.log10(x);
         return (float) (Math.log(x) / Math.log(2));
     }
 
     /**
      * check if movie match to answers
+     *
      * @param id
      * @return
      */
@@ -74,7 +83,9 @@ public class EntropyCalculator {
     }
 
     /**
-     * calculate number of positive answers of given question for all matching movies
+     * calculate number of positive answers of given question for all matching
+     * movies
+     *
      * @param questionId
      * @return
      */
@@ -89,8 +100,9 @@ public class EntropyCalculator {
     }
 
     /**
-     * calculate entropy of given question based on matching movies list
-     * if entropy is 0, then set value of given on calculated values
+     * calculate entropy of given question based on matching movies list if
+     * entropy is 0, then set value of given on calculated values
+     *
      * @param questionId
      * @return
      */
@@ -99,6 +111,7 @@ public class EntropyCalculator {
 
         if (positive == 0.0 || matchingMoviesAmount == positive) {
             getCalculatedValues()[questionId] = positive == 0.0 ? 0 : 1;
+            getUnknownAnswers().remove(new Integer(questionId));
             return 0;
         }
         float px1 = positive / matchingMoviesAmount;
@@ -106,6 +119,9 @@ public class EntropyCalculator {
         float logpx1 = calcLogarithm(px1);
         float logpx0 = calcLogarithm(px0);
         float ans = -px1 * logpx1 - px0 * logpx0;
+        if(ans == 1) {
+//            System.out.println("WOW");
+        }
         return ans;
     }
 
@@ -119,8 +135,9 @@ public class EntropyCalculator {
     }
 
     /**
-     * filter movies list - remove movies which do not match answers
-     * then extract new answers
+     * filter movies list - remove movies which do not match answers then
+     * extract new answers
+     *
      * @param questionId
      * @param answer
      */
@@ -136,18 +153,17 @@ public class EntropyCalculator {
     }
 
     /**
-     * create and return array of answers - if question has not been yet answered,
-     * then the value is -1
+     * create and return array of answers - if question has not been yet
+     * answered, then the value is -1
+     *
      * @return
      */
     public int[] answeredQuestions() {
         int[] answered = new int[columns];
         Arrays.fill(answered, -1);
-        int sum = 0;
-        for (int i = 0; i < columns; i ++) {
+        for (int i = 0; i < columns; i++) {
             if (getCalculatedValues()[i] >= 0) {
                 answered[i] = getCalculatedValues()[i];
-                sum++;
             }
         }
         return answered;
@@ -155,11 +171,12 @@ public class EntropyCalculator {
 
     /**
      * calculate and return number of answered questions
+     *
      * @return
      */
     public int answeredQuestionsAmount() {
         int sum = 0;
-        for (int i = 0; i < columns; i ++) {
+        for (int i = 0; i < columns; i++) {
             if (getCalculatedValues()[i] >= 0) {
                 sum++;
             }
@@ -169,11 +186,12 @@ public class EntropyCalculator {
 
     /**
      * generate ArrayList with ids of answered questions
+     *
      * @return
      */
     public List<Integer> getAnsweredQuestionsIds() {
         List<Integer> answered = new ArrayList<Integer>();
-        for (int i = 0; i < columns; i ++) {
+        for (int i = 0; i < columns; i++) {
             if (getCalculatedValues()[i] >= 0) {
                 answered.add(i);
             }
@@ -187,6 +205,17 @@ public class EntropyCalculator {
      */
     public float getEntropyForFeature(int id) {
         return actuallEntropy[id];
+    }
+
+    public int positiveAnswersAmount() {
+        int sum = 0;
+
+        for (int i = 0; i < columns; i++) {
+            if (getCalculatedValues()[i] == 1) {
+                sum++;
+            }
+        }
+        return sum;
     }
 
     public FloatMatrix getMovies() {
@@ -223,5 +252,13 @@ public class EntropyCalculator {
 
     public float[] getActuallEntropy() {
         return actuallEntropy;
+    }
+
+    public ArrayList<Integer> getUnknownAnswers() {
+        return unknownAnswers;
+    }
+
+    public void setUnknownAnswers(ArrayList<Integer> unknownAnswers) {
+        this.unknownAnswers = unknownAnswers;
     }
 }

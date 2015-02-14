@@ -7,7 +7,6 @@ package algorithm;
 
 import algorithm.statistics.StatisticsHandler;
 import matrices.operations.CalculatedMatrixFactory;
-import org.jblas.FloatMatrix;
 import rbm.MainFrame;
 
 /**
@@ -74,19 +73,19 @@ public class RBM extends Thread {
         rbmHelper.generateAnswerArrays();
         rbmHelper.calculateBasicEntropy();
         int j = 0;
-        while (j < repository.getQuestions() && rbmHelper.getActiveMovies() > 1) {
+        while (j < repository.getQuestions() && rbmHelper.getUnknownAsweresAmount() > 1) {
             rbmHelper.calculateH1();
             rbmHelper.calculateV2();
             rbmHelper.removeAnswered();
             rbmHelper.includeEntropy();
-            System.out.println("before");
-            long s1 = System.currentTimeMillis();
-            funkcjaKuby();
-            long e1 = System.currentTimeMillis();
-            System.out.println("after");
-            System.out.println(e1-s1);
-//            calculateFreeEnergy(vMatrix);
+//            System.out.println("before");
+//            long s1 = System.currentTimeMillis();
             rbmHelper.askQuestion(j);
+//            long e1 = System.currentTimeMillis();
+//            System.out.println("after");
+//            System.out.println(e1-s1);
+            System.out.println(j + " -- " + rbmHelper.getAnsweredAmount() + " -- "+ rbmHelper.positiveAnswersAmount());
+//            System.out.println(rbmHelper.getUnknownAsweresAmount());
             j++;
         }
         int similiar = rbmHelper.calculateAnswers(statisticsHandler);
@@ -103,55 +102,4 @@ public class RBM extends Thread {
     public void setSelectionHelperType(SelectionHelperType selectionHelperType) {
         repository.setSelectionHelperType(selectionHelperType);
     }
-
-    private void funkcjaKuby() {
-        float ne = -calculateFreeEnergy(repository.getVMatrix());
-        float[] entropies = new float[repository.getFeatures()];
-        for (int i = 0; i < repository.getFeatures(); i++) {
-            FloatMatrix withOne = repository.getVMatrix().dup();
-            withOne.put(i, 0, 1f);
-
-            float pe = -calculateFreeEnergy(withOne);
-//            System.out.println(ne);
-            float mi = calculateMI(pe , ne);
-            float o1 = (float) (-mi * Math.log10(mi));
-            float o2 = 1 - mi;
-            float o3 = (float) Math.log10(1 - mi);
-            float o4 = o2 * o3;
-            float res = o1 - o4;
-            entropies[i] = res;
-//            System.out.println(res);
-        }
-        System.out.println("s");
-    }
-
-    public static float calculateMI(float pp, float pm) {
-        float denominator = (float) (1 + Math.exp(pm - pp));
-        return 1 / denominator;
-    }
-
-    private float calculateFreeEnergy(FloatMatrix currentMatrix) {
-        FloatMatrix vCopy = currentMatrix.dup();
-        // -b^t*x
-        FloatMatrix t1 = repository.getA().transpose().mmul(vCopy);
-
-        float sum = 0;
-        int c = repository.getW().columns;
-        for (int i = 0; i < c; i++) {
-            // W.j ^t
-            FloatMatrix column = repository.getW().getColumn(i);
-            FloatMatrix m2 = column.transpose();
-            //m2 * x
-            FloatMatrix m3 = m2.mmul(vCopy);
-            float x1 = m3.get(0, 0);
-            float x2 = repository.getB().get(i, 0);
-            float x3 = x1 + x2;
-            float res = (float) Math.log10(1 + Math.exp(x3));
-            sum += res;
-        }
-        float btx = -t1.get(0, 0);
-        return btx - sum;
-
-    }
-
 }

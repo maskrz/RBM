@@ -6,6 +6,7 @@
 package algorithm;
 
 import algorithm.statistics.StatisticsHandler;
+import java.util.ArrayList;
 import java.util.Arrays;
 import matrices.operations.CalculatedMatrixFactory;
 import static matrices.operations.MatrixOperation.ADVERSE;
@@ -105,8 +106,8 @@ public class RBMHelper {
                 break;
             case MULTIPLE:
                 for (int i = 0; i < repository.getFeatures(); i++) {
-                    repository.getV2().put(i, 0, repository.getV2().get(i, 0) *
-                            repository.getEntropyCalculator().getEntropyForFeature(i));
+                    repository.getV2().put(i, 0, repository.getV2().get(i, 0)
+                            * repository.getEntropyCalculator().getEntropyForFeature(i));
                 }
                 break;
             case ADD:
@@ -124,6 +125,9 @@ public class RBMHelper {
                 break;
             case PERCENTAGE_RANKING:
                 createAndSetPercentageRanking();
+                break;
+            case BOLTZMANN_ENTROPY:
+                funkcjaKuby();
                 break;
             default:
                 throw new RuntimeException("BAD TYPE");
@@ -176,6 +180,8 @@ public class RBMHelper {
         FloatMatrix cumsum = cmf.singleMatrixOperation(px, CUMSUM);
         FloatMatrix l = lessThan(cumsum, r);
         int id = (int) sum(l);
+        // TODO refactor me!
+        id = funkcjaKuby();
         System.out.println(id);
         repository.getIds()[questionId] = id;
         float answer = repository.getXMatrix().get(0, id);
@@ -191,6 +197,7 @@ public class RBMHelper {
         repository.getOrder()[id].add(questionId);
         if (repository.getFilterMovies()) {
             repository.setAnswered(repository.getEntropyCalculator().answeredQuestions());
+            updateVMatrix();
         }
     }
 
@@ -222,7 +229,133 @@ public class RBMHelper {
         return actuall;
     }
 
-    int getActiveMovies() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    int getUnknownAsweresAmount() {
+        return repository.getEntropyCalculator().getUnknownAnswers().size();
+    }
+
+    ArrayList<Integer> getUnknownAsweres() {
+        return repository.getEntropyCalculator().getUnknownAnswers();
+    }
+
+    int getAnsweredAmount() {
+        int sum = 0;
+        for (int i = 0; i < repository.getFeatures(); i++) {
+            if (repository.getVMatrix().get(i, 0) > 0) {
+                sum++;
+            }
+        }
+
+        return sum;
+    }
+
+    int positiveAnswersAmount() {
+        return repository.getEntropyCalculator().positiveAnswersAmount();
+    }
+
+    private void updateVMatrix() {
+        for (int i = 0; i < repository.getFeatures(); i++) {
+            float calculatedValue = repository.getEntropyCalculator().getCalculatedValues()[i];
+            if (calculatedValue >= 0) {
+                repository.getVMatrix().put(i, 0, calculatedValue);
+            }
+        }
+    }
+
+    private int funkcjaKuby() {
+        float ne = -calculateFreeEnergy(repository.getVMatrix());
+        float[] entropies = new float[repository.getFeatures()];
+        float best = 0f;
+        int[] candidates = null;
+        int count = 0;
+        for (Integer i : getUnknownAsweres()) {
+            FloatMatrix withOne = repository.getVMatrix().dup();
+            withOne.put(i, 0, 1f);
+
+            float pe = -calculateFreeEnergy(withOne);
+//            System.out.println(ne);
+            float mi = calculateMI(pe, ne);
+            float o1 = (float) (-mi * calcLogarithm(mi));
+            float o2 = 1 - mi;
+            float o3 = (float) calcLogarithm(1 - mi);
+            float o4 = o2 * o3;
+            float res = o1 - o4;
+            if (res > best) {
+                count = 0;
+                candidates = new int[128];
+                candidates[count++] = i;
+                best = res;
+            } else if (res == best) {
+                candidates[count++] = i;
+            }
+            entropies[i] = res;
+        }
+        int pick = (int) (Math.random() * count);
+        System.out.println("picked :" + candidates[pick]);
+        System.out.println("entropy :" + entropies[candidates[pick]]);
+//        System.out.println("s");
+        return candidates[pick];
+    }
+
+    public static float calculateMI(float pp, float pm) {
+        float denominator = (float) (1 + Math.exp(pm - pp));
+        return 1 / denominator;
+    }
+
+    private float calculateFreeEnergy(FloatMatrix currentMatrix) {
+        FloatMatrix vCopy = currentMatrix.dup();
+        // -b^t*x
+        FloatMatrix t1 = repository.getA().transpose().mmul(vCopy);
+
+        float sum = 0;
+        int c = repository.getW().columns;
+        for (int i = 0; i < c; i++) {
+            // W.j ^t
+            FloatMatrix column = repository.getW().getColumn(i);
+            FloatMatrix m2 = column.transpose();
+            //m2 * x
+            FloatMatrix m3 = m2.mmul(vCopy);
+            float x1 = m3.get(0, 0);
+            float x2 = repository.getB().get(i, 0);
+            float x3 = x1 + x2;
+            float res = calcLogarithm((float) (1 + Math.exp(x3)));
+            sum += res;
+        }
+        float btx = -t1.get(0, 0);
+        return btx - sum;
+
+    }
+
+    /**
+     * calculate logarithm with base 2 from given x
+     *
+     * @param x
+     * @return
+     */
+    protected float calcLogarithm(float x) {
+        return (float) (Math.log(x) / Math.log(2));
+    }
+
+    private int bestEntropy() {
+        float[] entropies = new float[repository.getFeatures()];
+        float best = 0f;
+        int[] candidates = null;
+        int count = 0;
+        for (Integer i : getUnknownAsweres()) {
+             float res = repository.getEntropyCalculator().getEntropyForFeature(i);
+            if (res > best) {
+                count = 0;
+                candidates = new int[1024];
+                candidates[count++] = i;
+                best = res;
+            } else if (res == best) {
+                candidates[count++] = i;
+            }
+            entropies[i] = res;
+        }
+        int pick = (int) (Math.random() * count);
+        System.out.println("picked :" + candidates[pick]);
+        System.out.println("entropy :" + entropies[candidates[pick]]);
+//        System.out.println("s");
+        return candidates[pick];
     }
 }

@@ -4,6 +4,8 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="buttonGroup2">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
@@ -126,10 +128,6 @@
                       </Group>
                       <Component id="jButton1" min="-2" pref="160" max="-2" attributes="0"/>
                       <Component id="filterMovieCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="multipleEntropy" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="addEntropy" min="-2" max="-2" attributes="0"/>
-                      <Component id="onlyEntropy" min="-2" max="-2" attributes="0"/>
-                      <Component id="noEntropy" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="ConfigurationComboBox" min="-2" pref="70" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -137,8 +135,25 @@
                       </Group>
                       <Component id="ranking" min="-2" max="-2" attributes="0"/>
                       <Component id="percentage_ranking" min="-2" max="-2" attributes="0"/>
+                      <Component id="boltzmann_entropy" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="multipleEntropy" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="addEntropy" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="onlyEntropy" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="noEntropy" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="randomBest" min="-2" max="-2" attributes="0"/>
+                              <Component id="randomQuestion" min="-2" max="-2" attributes="0"/>
+                              <Component id="selectBest" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel20" min="-2" pref="106" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Component id="random" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="286" max="32767" attributes="0"/>
+                  <EmptySpace pref="192" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -147,8 +162,11 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jSeparator1" max="32767" attributes="0"/>
-                      <Group type="102" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="jSeparator1" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
                                   <Component id="jLabel1" min="-2" pref="26" max="-2" attributes="0"/>
@@ -245,28 +263,43 @@
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="filterMovieCheckBox" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="multipleEntropy" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="multipleEntropy" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="addEntropy" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="addEntropy" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="selectBest" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="onlyEntropy" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="onlyEntropy" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="randomQuestion" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="noEntropy" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="noEntropy" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="randomBest" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="ranking" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="percentage_ranking" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="ConfigurationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="CofigurationButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="boltzmann_entropy" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="random" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace min="0" pref="67" max="32767" attributes="0"/>
+                          <EmptySpace pref="12" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="ConfigurationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="CofigurationButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -535,6 +568,37 @@
         <Component class="javax.swing.JRadioButton" name="percentage_ranking">
           <Properties>
             <Property name="text" type="java.lang.String" value="Ranking Procentowy"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="boltzmann_entropy">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Entropia-boltzmann"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel20">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Wybor pytania:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="selectBest">
+          <Properties>
+            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="Najlepsze"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="randomQuestion">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Losowanie"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="randomBest">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Losuj z najlepszych"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="random">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Losowo"/>
           </Properties>
         </Component>
       </SubComponents>

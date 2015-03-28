@@ -5,6 +5,8 @@
  */
 package algorithm;
 
+import algorithm.choice.QuestionChoiceStrategy;
+import algorithm.selection.SelectionStrategy;
 import algorithm.statistics.StatisticsHandler;
 import matrices.operations.CalculatedMatrixFactory;
 import rbm.MainFrame;
@@ -15,12 +17,12 @@ import rbm.MainFrame;
  */
 public class RBM extends Thread {
 
-
     private CalculatedMatrixFactory cmf;
 
     private MainFrame mainFrame;
     private boolean filterMovies;
-    SelectionHelperType selectionHelperType;
+    SelectionStrategy selectionStrategy;
+    QuestionChoiceStrategy questionChoiceStrategy;
     StatisticsHandler statisticsHandler;
     RBMHelper rbmHelper;
     RBMRepository repository;
@@ -35,25 +37,25 @@ public class RBM extends Thread {
 
     @Override
     public void run() {
-        executeForAll(filterMovies, selectionHelperType);
+        executeForAll(filterMovies, selectionStrategy, questionChoiceStrategy);
     }
 
-    public void executeForAll(boolean entropy, SelectionHelperType selectionHelperType) {
+    public void executeForAll(boolean entropy, SelectionStrategy selectionStrategy, QuestionChoiceStrategy questionChoiceStrategy) {
         // starts from 1 because of movie numbering
         for (int i = 1; i < repository.getConcepts() + 1; i++) {
-            System.out.println("Film nr: " + i);
+//            System.out.println("Film nr: " + i);
             rbmHelper.setUpEntropyCalculator();
             statisticsHandler.setMainInfoMovieId(i - 1);
             mainFrame.setProgress("Film nr " + i + " z " + repository.getConcepts());
             long start = System.currentTimeMillis();
-            int similar = recognizeMovie(i, entropy, selectionHelperType);
+            int similar = recognizeMovie(i, entropy, selectionStrategy, questionChoiceStrategy);
             long end = System.currentTimeMillis();
-            System.out.println("------------");
+//            System.out.println("------------");
             float time = (end - start) / 1000;
             mainFrame.setOther("Ostatni film byl jednym z: " + similar);
         }
         //statistics
-        statisticsHandler.handleStatistics(repository.getFeatures(), repository.getOrder(), selectionHelperType, repository.getQuestions());
+        statisticsHandler.handleStatistics(repository.getFeatures(), repository.getOrder(), selectionStrategy, questionChoiceStrategy, repository.getQuestions());
     }
 
     /**
@@ -64,42 +66,41 @@ public class RBM extends Thread {
      * @param selectionHelperType
      * @return
      */
-    public int recognizeMovie(int movieId, boolean filterMovies, SelectionHelperType selectionHelperType) {
-        rbmHelper.setSelectionHelperType(selectionHelperType);
+    public int recognizeMovie(int movieId, boolean filterMovies, SelectionStrategy selectionStrategy, QuestionChoiceStrategy questionChoiceStrategy) {
+        rbmHelper.setSelectionStrategy(selectionStrategy);
+        rbmHelper.setQuestionChoiceStrategy(questionChoiceStrategy);
         rbmHelper.setFilterMovies(filterMovies);
-        System.out.println(movieId);
         rbmHelper.generateXMatrix(movieId - 1);
         rbmHelper.generateVMatrix();
         rbmHelper.generateAnswerArrays();
         rbmHelper.calculateBasicEntropy();
         int j = 0;
         while (j < repository.getQuestions() && rbmHelper.getUnknownAsweresAmount() > 1) {
-            rbmHelper.calculateH1();
-            rbmHelper.calculateV2();
-            rbmHelper.removeAnswered();
-            rbmHelper.includeEntropy();
-//            System.out.println("before");
-//            long s1 = System.currentTimeMillis();
-            rbmHelper.askQuestion(j);
-//            long e1 = System.currentTimeMillis();
-//            System.out.println("after");
-//            System.out.println(e1-s1);
-            System.out.println(j + " -- " + rbmHelper.getAnsweredAmount() + " -- "+ rbmHelper.positiveAnswersAmount());
+//            System.out.println("Pytanie: " + j);
+            rbmHelper.process(j);
+//            System.out.println(j + " -- " + rbmHelper.getAnsweredAmount() + " -- " + rbmHelper.positiveAnswersAmount());
 //            System.out.println(rbmHelper.getUnknownAsweresAmount());
             j++;
         }
-        int similiar = rbmHelper.calculateAnswers(statisticsHandler);
+        int similiar = rbmHelper.calculateAnswers(statisticsHandler, j);
+//        System.out.println(j);
 
         return similiar;
 
     }
 
     public void setFilterMovies(boolean filterMovies) {
-
+        this.filterMovies = filterMovies;
         repository.setFilterMovies(filterMovies);
     }
 
-    public void setSelectionHelperType(SelectionHelperType selectionHelperType) {
-        repository.setSelectionHelperType(selectionHelperType);
+    public void setSelectionStrategy(SelectionStrategy selectionStrategy) {
+        this.selectionStrategy = selectionStrategy;
+        repository.setSelectionStrategy(selectionStrategy);
+    }
+
+    public void setQuestionChoiceStrategy(QuestionChoiceStrategy questionChoiceStrategy) {
+        this.questionChoiceStrategy = questionChoiceStrategy;
+        repository.setQuestionChoiceStrategy(questionChoiceStrategy);
     }
 }

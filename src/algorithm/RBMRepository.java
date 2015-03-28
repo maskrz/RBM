@@ -5,6 +5,8 @@
  */
 package algorithm;
 
+import algorithm.choice.QuestionChoiceStrategy;
+import algorithm.selection.SelectionStrategy;
 import matrices.operations.CalculatedMatrixFactory;
 import org.jblas.FloatMatrix;
 
@@ -31,8 +33,9 @@ public class RBMRepository {
     private boolean filterMovies;
     private FloatMatrix h1;
     private FloatMatrix v2;
-    private SelectionHelperType selectionHelperType;
+    private SelectionStrategy selectionStrategy;
     private RankingHelper rankingHelper;
+    private QuestionChoiceStrategy questionChoiceStrategy;
 
     public RBMRepository(FloatMatrix a, FloatMatrix b, FloatMatrix w, FloatMatrix dataSet, int questions) {
         this.a = a;
@@ -196,12 +199,12 @@ public class RBMRepository {
         this.v2 = v2;
     }
 
-    void setSelectionHelperType(SelectionHelperType selectionHelperType) {
-        this.selectionHelperType = selectionHelperType;
+    void setSelectionStrategy(SelectionStrategy selectionStrategy) {
+        this.selectionStrategy = selectionStrategy;
     }
 
-    SelectionHelperType getSelectionHelperType() {
-        return this.selectionHelperType;
+    SelectionStrategy getSelectionStrategy() {
+        return this.selectionStrategy;
     }
 
     public RankingHelper getRankingHelper() {
@@ -210,5 +213,13 @@ public class RBMRepository {
 
     public void setRankingHelper(RankingHelper rankingHelper) {
         this.rankingHelper = rankingHelper;
+    }
+
+    void setQuestionChoiceStrategy(QuestionChoiceStrategy questionChoiceStrategy) {
+        this.questionChoiceStrategy = questionChoiceStrategy;
+    }
+
+    public QuestionChoiceStrategy getQuestionChoiceStrategy() {
+        return questionChoiceStrategy;
     }
 }

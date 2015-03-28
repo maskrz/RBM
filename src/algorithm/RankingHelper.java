@@ -48,7 +48,6 @@ public class RankingHelper {
             }
         }
         entropySorted = temp.sortRows();
-        // FIXME - check also 36 - add stop after find movie
         if (activeNumber > 0) {
             maxEntropy = entropySorted.get(0, activeNumber - 1);
         }
@@ -87,11 +86,11 @@ public class RankingHelper {
         return activeNumber;
     }
 
-    float getV2PercentageRanking(float value) {
+    public float getV2PercentageRanking(float value) {
         return value/maxV2;
     }
 
-    float getEntropyPercentageRanking(float value) {
+    public float getEntropyPercentageRanking(float value) {
         return value/maxEntropy;
     }
 

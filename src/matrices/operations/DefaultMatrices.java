@@ -23,7 +23,8 @@ class DefaultMatrices {
 
     public FloatMatrix getMatrix(int rows, int columns, float value) {
         FloatMatrix result = matrices.get(rows + "-" + columns + "-" + value);
-        return  result != null? result : addMatrix(rows, columns, value);
+        return  addMatrix(rows, columns, value);
+//        return  result != null? result : addMatrix(rows, columns, value);
     }
 
     private FloatMatrix addMatrix(int rows, int columns, float value) {

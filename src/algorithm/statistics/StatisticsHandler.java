@@ -6,7 +6,8 @@
 package algorithm.statistics;
 
 import algorithm.Node;
-import algorithm.SelectionHelperType;
+import algorithm.choice.QuestionChoiceStrategy;
+import algorithm.selection.SelectionStrategy;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -30,15 +31,16 @@ public class StatisticsHandler {
         mainInfo.append(i).append(newLine);
     }
 
-    public void addMatchedMoviesInfo(int actuall, String matchedMovies) {
+    public void addMatchedMoviesInfo(int actuall, String matchedMovies, int questions) {
+        mainInfo.append(questions).append(newLine);
         mainInfo.append(actuall).append(newLine);
         mainInfo.append(matchedMovies).append(newLine);
     }
 
     public void handleStatistics(int features, Node[] order, 
-            SelectionHelperType selectionHelperType, int questions) {
+            SelectionStrategy selectionStrategy, QuestionChoiceStrategy choiceStrategy, int questions) {
         Date time = new Date();
-        String inf = selectionHelperType + "-" + questions + "-" + features + "_";
+        String inf = selectionStrategy.getClass().getSimpleName()+"-"+choiceStrategy.getClass().getSimpleName() + "-" + questions + "-" + features + "_";
         createMainInfo(inf, time);
         createStatistics(inf, time, features, order);
     }

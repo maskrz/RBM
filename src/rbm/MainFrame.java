@@ -9,6 +9,9 @@ import algorithm.RBM;
 import algorithm.RBMRepository;
 import algorithm.RBMtrain;
 import algorithm.SelectionHelperType;
+import algorithm.choice.QuestionChoiceStrategy;
+import algorithm.choice.QuestionChoiceStrategyType;
+import algorithm.selection.SelectionStrategy;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -51,7 +54,8 @@ public class MainFrame extends javax.swing.JFrame {
     private String dataSetRBMname;
     private String rbmSetName;
     private boolean filterMovies;
-    private SelectionHelperType selectionHelperType;
+    private SelectionStrategy selectionStrategy;
+    private QuestionChoiceStrategy choiceStrategy;
     private boolean isRunning;
 
     public MainFrame() {
@@ -66,6 +70,11 @@ public class MainFrame extends javax.swing.JFrame {
         buttonGroup1.add(noEntropy);
         buttonGroup1.add(ranking);
         buttonGroup1.add(percentage_ranking);
+        buttonGroup1.add(boltzmann_entropy);
+        buttonGroup1.add(random);
+        buttonGroup2.add(randomQuestion);
+        buttonGroup2.add(selectBest);
+        buttonGroup2.add(randomBest);
         isRunning = false;
         cmf = new CalculatedMatrixFactory();
     }
@@ -80,6 +89,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -129,6 +139,12 @@ public class MainFrame extends javax.swing.JFrame {
         CofigurationButton = new javax.swing.JButton();
         ranking = new javax.swing.JRadioButton();
         percentage_ranking = new javax.swing.JRadioButton();
+        boltzmann_entropy = new javax.swing.JRadioButton();
+        jLabel20 = new javax.swing.JLabel();
+        selectBest = new javax.swing.JRadioButton();
+        randomQuestion = new javax.swing.JRadioButton();
+        randomBest = new javax.swing.JRadioButton();
+        random = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -247,6 +263,19 @@ public class MainFrame extends javax.swing.JFrame {
 
         percentage_ranking.setText("Ranking Procentowy");
 
+        boltzmann_entropy.setText("Entropia-boltzmann");
+
+        jLabel20.setText("Wybor pytania:");
+
+        selectBest.setSelected(true);
+        selectBest.setText("Najlepsze");
+
+        randomQuestion.setText("Losowanie");
+
+        randomBest.setText("Losuj z najlepszych");
+
+        random.setText("Losowo");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -316,24 +345,36 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(questionsAmount)))
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(filterMovieCheckBox)
-                    .addComponent(multipleEntropy)
-                    .addComponent(addEntropy)
-                    .addComponent(onlyEntropy)
-                    .addComponent(noEntropy)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(CofigurationButton))
                     .addComponent(ranking)
-                    .addComponent(percentage_ranking))
-                .addContainerGap(286, Short.MAX_VALUE))
+                    .addComponent(percentage_ranking)
+                    .addComponent(boltzmann_entropy)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(multipleEntropy)
+                            .addComponent(addEntropy)
+                            .addComponent(onlyEntropy)
+                            .addComponent(noEntropy))
+                        .addGap(58, 58, 58)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(randomBest)
+                            .addComponent(randomQuestion)
+                            .addComponent(selectBest)
+                            .addComponent(jLabel20, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(random))
+                .addContainerGap(192, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSeparator1)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jSeparator1)
+                        .addContainerGap())
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -415,23 +456,34 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(filterMovieCheckBox)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(multipleEntropy)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(multipleEntropy)
+                                    .addComponent(jLabel20))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(addEntropy)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(addEntropy)
+                                    .addComponent(selectBest))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(onlyEntropy)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(onlyEntropy)
+                                    .addComponent(randomQuestion))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(noEntropy)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(noEntropy)
+                                    .addComponent(randomBest))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ranking)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(percentage_ranking)
-                                .addGap(11, 11, 11)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(CofigurationButton))))
-                        .addGap(0, 67, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(boltzmann_entropy)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(random)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(ConfigurationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(CofigurationButton))
+                        .addGap(43, 43, 43))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -471,7 +523,7 @@ public class MainFrame extends javax.swing.JFrame {
         readFeaturesMatrix(dataSetRBMname);
         RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
         this.rbm = new RBM(repository, this);
-        rbm.recognizeMovie(movieId, filterMovies, selectionHelperType);
+        rbm.recognizeMovie(movieId, filterMovies, selectionStrategy, choiceStrategy);
     }//GEN-LAST:event_recognizaMovieButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -479,7 +531,7 @@ public class MainFrame extends javax.swing.JFrame {
         readFeaturesMatrix(dataSetRBMname);
         RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
         this.rbm = new RBM(repository, this);
-        rbm.executeForAll(filterMovies, selectionHelperType);
+        rbm.executeForAll(filterMovies, selectionStrategy, choiceStrategy);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void CofigurationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CofigurationButtonActionPerformed
@@ -529,7 +581,9 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JRadioButton addEntropy;
     private javax.swing.JTextField alphaTextField;
     private javax.swing.JTextField bNameTextField;
+    private javax.swing.JRadioButton boltzmann_entropy;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JComboBox dataSetsComboBox;
     private javax.swing.JComboBox dataSetsComboBoxRBM;
     private javax.swing.JTextField epochsTextBox;
@@ -549,6 +603,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -567,9 +622,13 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JRadioButton percentage_ranking;
     private javax.swing.JLabel progressInfo;
     private javax.swing.JTextField questionsAmount;
+    private javax.swing.JRadioButton random;
+    private javax.swing.JRadioButton randomBest;
+    private javax.swing.JRadioButton randomQuestion;
     private javax.swing.JRadioButton ranking;
     private javax.swing.JButton recognizaMovieButton;
     private javax.swing.JButton requestError;
+    private javax.swing.JRadioButton selectBest;
     private javax.swing.JButton teachRBM;
     private javax.swing.JTextField wNameTextField;
     // End of variables declaration//GEN-END:variables
@@ -737,22 +796,37 @@ public class MainFrame extends javax.swing.JFrame {
         rbmSetName = RBMcomboBox.getSelectedItem().toString();
         filterMovies = filterMovieCheckBox.isSelected();
         if (onlyEntropy.isSelected()) {
-            selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
+            selectionStrategy = SelectionHelperType.ONLY_ENTROPY.newInstance();
         }
         if (addEntropy.isSelected()) {
-            selectionHelperType = SelectionHelperType.ADD;
+            selectionStrategy = SelectionHelperType.ADD.newInstance();
         }
         if (multipleEntropy.isSelected()) {
-            selectionHelperType = SelectionHelperType.MULTIPLE;
+            selectionStrategy = SelectionHelperType.MULTIPLE.newInstance();
         }
         if (noEntropy.isSelected()) {
-            selectionHelperType = SelectionHelperType.NONE;
+            selectionStrategy = SelectionHelperType.NONE.newInstance();
         }
         if (ranking.isSelected()) {
-            selectionHelperType = SelectionHelperType.RANKING;
+            selectionStrategy = SelectionHelperType.RANKING.newInstance();
         }
         if (percentage_ranking.isSelected()) {
-            selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
+            selectionStrategy = SelectionHelperType.PERCENTAGE_RANKING.newInstance();
+        }
+        if (boltzmann_entropy.isSelected()) {
+            selectionStrategy = SelectionHelperType.BOLTZMANN_ENTROPY.newInstance();
+        }
+        if (random.isSelected()) {
+            selectionStrategy = SelectionHelperType.RANDOM.newInstance();
+        }
+        if (selectBest.isSelected()) {
+            choiceStrategy = QuestionChoiceStrategyType.SELECT_BEST.newInstance();
+        }
+        if (randomQuestion.isSelected()) {
+            choiceStrategy = QuestionChoiceStrategyType.RANDOM_FROM_PROBABILITIES.newInstance();
+        }
+        if(randomBest.isSelected()) {
+            choiceStrategy = QuestionChoiceStrategyType.RANDOM_BEST.newInstance();
         }
         initializeRBM(rbmSetName);
 
@@ -844,32 +918,49 @@ public class MainFrame extends javax.swing.JFrame {
                 filterMovies = Boolean.valueOf(sc.nextLine());
                 String selectionHelper = sc.nextLine();
                 if ("none".equals(selectionHelper)) {
-                    selectionHelperType = SelectionHelperType.NONE;
+                    selectionStrategy = SelectionHelperType.NONE.newInstance();
                 }
                 if ("add".equals(selectionHelper)) {
-                    selectionHelperType = SelectionHelperType.ADD;
+                    selectionStrategy = SelectionHelperType.ADD.newInstance();
                 }
                 if ("multiply".equals(selectionHelper)) {
-                    selectionHelperType = SelectionHelperType.MULTIPLE;
+                    selectionStrategy = SelectionHelperType.MULTIPLE.newInstance();
                 }
                 if ("only".equals(selectionHelper)) {
-                    selectionHelperType = SelectionHelperType.ONLY_ENTROPY;
+                    selectionStrategy = SelectionHelperType.ONLY_ENTROPY.newInstance();
                 }
                 if ("ranking".equals(selectionHelper)) {
-                    selectionHelperType = SelectionHelperType.RANKING;
+                    selectionStrategy = SelectionHelperType.RANKING.newInstance();
                 }
                 if ("percentage_ranking".equals(selectionHelper)) {
-                    selectionHelperType = SelectionHelperType.PERCENTAGE_RANKING;
+                    selectionStrategy = SelectionHelperType.PERCENTAGE_RANKING.newInstance();
+                }
+                if ("boltzmann_entropy".equals(selectionHelper)) {
+                    selectionStrategy = SelectionHelperType.BOLTZMANN_ENTROPY.newInstance();
+                }
+                if ("random".equals(selectionHelper)) {
+                    selectionStrategy = SelectionHelperType.RANDOM.newInstance();
+                }
+                String choiceStrategyString = sc.nextLine();
+                if ("select_best".equals(choiceStrategyString)) {
+                    choiceStrategy = QuestionChoiceStrategyType.SELECT_BEST.newInstance();
+                }
+                if ("random".equals(choiceStrategyString)) {
+                    choiceStrategy = QuestionChoiceStrategyType.RANDOM_FROM_PROBABILITIES.newInstance();
+                }
+                if ("random_best".equals(choiceStrategyString)) {
+                    choiceStrategy = QuestionChoiceStrategyType.RANDOM_BEST.newInstance();
                 }
                 readFeaturesMatrix(serializedM);
                 initializeRBM(rbmName);
 
-        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
-        this.rbm = new RBM(repository, this);
+                RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+                this.rbm = new RBM(repository, this);
 
-        //TODO
+                //TODO
                 rbm.setFilterMovies(filterMovies);
-                rbm.setSelectionHelperType(selectionHelperType);
+                rbm.setSelectionStrategy(selectionStrategy);
+                rbm.setQuestionChoiceStrategy(choiceStrategy);
                 rbm.start();
                 rbm.join();
                 featuresMatrix = null;
@@ -885,19 +976,19 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream("peopleGroups.ser"));
             FeaturesMatrix fm = (FeaturesMatrix) ois.readObject();
-            float[][] testData =
-            {{0f,0f,1f,0f,0f},
-                {0f,1f,0f,1f,0f},
-                {0f,0f,0f,0f,1f},
-                {1f,1f,0f,1f,1f},
-                {0f,1f,1f,1f,0f},
-                {1f,0f,0f,1f,1f}};
+            float[][] testData
+                    = {{0f, 0f, 1f, 0f, 0f},
+                    {0f, 1f, 0f, 1f, 0f},
+                    {0f, 0f, 0f, 0f, 1f},
+                    {1f, 1f, 0f, 1f, 1f},
+                    {0f, 1f, 1f, 1f, 0f},
+                    {1f, 0f, 0f, 1f, 1f}};
             FloatMatrix floatMatrix = new FloatMatrix(testData);
             fm.setFeatures(floatMatrix.toIntArray2());
             fm.serialize();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 }

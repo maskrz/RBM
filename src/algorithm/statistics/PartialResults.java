@@ -13,8 +13,26 @@ package algorithm.statistics;
 public class PartialResults {
 
     PartialResult[][] results;
+    int movies;
 
     public PartialResults(int questionAmount, int movies) {
+        this.movies = movies;
         results = new PartialResult[questionAmount][movies];
+    }
+
+    void addSnap(int question, int movie, PartialResult partialResult) {
+        results[question][movie] = partialResult;
+    }
+
+    public String createResultStringForQuestion(int questionId) {
+        StringBuilder sb = new StringBuilder();
+        String newLine = System.getProperty("line.separator");
+        for(int i = 0; i < movies; i ++) {
+            sb.append(i).append(newLine);
+            sb.append(questionId).append(newLine);
+            sb.append(results[questionId][i].getSimilarAmount()).append(newLine);
+            sb.append(results[questionId][i].getSimiliarString()).append(newLine);
+        }
+        return sb.toString();
     }
 }

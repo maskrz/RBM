@@ -31,16 +31,17 @@ public class RBM extends Thread {
         this.repository = repository;
         this.cmf = new CalculatedMatrixFactory();
         this.mainFrame = mainFrame;
-        statisticsHandler = new StatisticsHandler();
+        statisticsHandler = new StatisticsHandler(repository.getQuestions(), repository.getConcepts());
         rbmHelper = new RBMHelper(repository);
     }
 
     @Override
     public void run() {
-        executeForAll(filterMovies, selectionStrategy, questionChoiceStrategy);
+        executeForAll(filterMovies, selectionStrategy, questionChoiceStrategy, true);
     }
 
-    public void executeForAll(boolean entropy, SelectionStrategy selectionStrategy, QuestionChoiceStrategy questionChoiceStrategy) {
+    public void executeForAll(boolean entropy, SelectionStrategy selectionStrategy, QuestionChoiceStrategy questionChoiceStrategy, boolean handleSteps) {
+
         // starts from 1 because of movie numbering
         for (int i = 1; i < repository.getConcepts() + 1; i++) {
 //            System.out.println("Film nr: " + i);
@@ -48,14 +49,19 @@ public class RBM extends Thread {
             statisticsHandler.setMainInfoMovieId(i - 1);
             mainFrame.setProgress("Film nr " + i + " z " + repository.getConcepts());
             long start = System.currentTimeMillis();
-            int similar = recognizeMovie(i, entropy, selectionStrategy, questionChoiceStrategy);
+            int similar = recognizeMovie(i, entropy, selectionStrategy, questionChoiceStrategy, handleSteps);
             long end = System.currentTimeMillis();
 //            System.out.println("------------");
             float time = (end - start) / 1000;
             mainFrame.setOther("Ostatni film byl jednym z: " + similar);
         }
+
         //statistics
-        statisticsHandler.handleStatistics(repository.getFeatures(), repository.getOrder(), selectionStrategy, questionChoiceStrategy, repository.getQuestions());
+        if (handleSteps) {
+            statisticsHandler.saveAll(repository.getQuestions(), repository.getFeatures(), selectionStrategy, questionChoiceStrategy, repository.getCertainty());
+        } 
+            statisticsHandler.handleStatistics(repository.getFeatures(), repository.getOrder(), selectionStrategy, questionChoiceStrategy, repository.getQuestions());
+
     }
 
     /**
@@ -66,7 +72,9 @@ public class RBM extends Thread {
      * @param selectionHelperType
      * @return
      */
-    public int recognizeMovie(int movieId, boolean filterMovies, SelectionStrategy selectionStrategy, QuestionChoiceStrategy questionChoiceStrategy) {
+    public int recognizeMovie(int movieId, boolean filterMovies, SelectionStrategy selectionStrategy, QuestionChoiceStrategy questionChoiceStrategy, boolean handleSteps) {
+        // TODO delete me!
+        handleSteps = true;
         rbmHelper.setSelectionStrategy(selectionStrategy);
         rbmHelper.setQuestionChoiceStrategy(questionChoiceStrategy);
         rbmHelper.setFilterMovies(filterMovies);
@@ -75,17 +83,22 @@ public class RBM extends Thread {
         rbmHelper.generateAnswerArrays();
         rbmHelper.calculateBasicEntropy();
         int j = 0;
-        while (j < repository.getQuestions() && rbmHelper.getUnknownAsweresAmount() > 1) {
-//            System.out.println("Pytanie: " + j);
+        int similar = 0;
+        while (j < repository.getQuestions() && (rbmHelper.getUnknownAsweresAmount() > 1 || handleSteps)) {
             rbmHelper.process(j);
-//            System.out.println(j + " -- " + rbmHelper.getAnsweredAmount() + " -- " + rbmHelper.positiveAnswersAmount());
-//            System.out.println(rbmHelper.getUnknownAsweresAmount());
+            if (handleSteps) {
+                similar = rbmHelper.calculateAnswers(statisticsHandler, j, handleSteps, movieId);
+            }
             j++;
         }
-        int similiar = rbmHelper.calculateAnswers(statisticsHandler, j);
+        if (!handleSteps) {
+            similar = rbmHelper.calculateAnswers(statisticsHandler, j, handleSteps, movieId);
+
+        }
+//        System.out.println(similar);
 //        System.out.println(j);
 
-        return similiar;
+        return similar;
 
     }
 

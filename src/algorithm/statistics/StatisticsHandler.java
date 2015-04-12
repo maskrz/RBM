@@ -21,33 +21,35 @@ public class StatisticsHandler {
 
     private StringBuilder mainInfo;
     private String newLine;
+    private PartialResults partials;
 
-    public StatisticsHandler() {
+    public StatisticsHandler(int questions, int concepts) {
         newLine = System.getProperty("line.separator");
         mainInfo = new StringBuilder();
+        partials = new PartialResults(questions, concepts);
     }
 
     public void setMainInfoMovieId(int i) {
-        mainInfo.append(i).append(newLine);
+        getMainInfo().append(i).append(getNewLine());
     }
 
     public void addMatchedMoviesInfo(int actuall, String matchedMovies, int questions) {
-        mainInfo.append(questions).append(newLine);
-        mainInfo.append(actuall).append(newLine);
-        mainInfo.append(matchedMovies).append(newLine);
+        getMainInfo().append(questions).append(getNewLine());
+        getMainInfo().append(actuall).append(getNewLine());
+        getMainInfo().append(matchedMovies).append(getNewLine());
     }
 
-    public void handleStatistics(int features, Node[] order, 
+    public void handleStatistics(int features, Node[] order,
             SelectionStrategy selectionStrategy, QuestionChoiceStrategy choiceStrategy, int questions) {
         Date time = new Date();
-        String inf = selectionStrategy.getClass().getSimpleName()+"-"+choiceStrategy.getClass().getSimpleName() + "-" + questions + "-" + features + "_";
+        String inf = selectionStrategy.getClass().getSimpleName() + "-" + choiceStrategy.getClass().getSimpleName() + "-" + questions + "-" + features + "_";
         createMainInfo(inf, time);
         createStatistics(inf, time, features, order);
     }
 
     private void createMainInfo(String inf, Date time) {
         String fileName = "mainInfo_" + inf + time.getTime() + ".txt";
-        saveFile(fileName, mainInfo.toString());
+        saveFile(fileName, getMainInfo().toString());
     }
 
     private void saveFile(String fileName, String fileContent) {
@@ -55,9 +57,9 @@ public class StatisticsHandler {
         try {
             if (!f.exists()) {
                 f.createNewFile();
-            PrintWriter writer = new PrintWriter(f);
-            writer.printf(fileContent);
-            writer.close();
+                PrintWriter writer = new PrintWriter(f);
+                writer.printf(fileContent);
+                writer.close();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -78,5 +80,40 @@ public class StatisticsHandler {
             sb.append(order[i]).append(System.getProperty("line.separator"));
         }
         return sb.toString();
+    }
+
+    public StringBuilder getMainInfo() {
+        return mainInfo;
+    }
+
+    public void setMainInfo(StringBuilder mainInfo) {
+        this.mainInfo = mainInfo;
+    }
+
+    public String getNewLine() {
+        return newLine;
+    }
+
+    public void setNewLine(String newLine) {
+        this.newLine = newLine;
+    }
+
+    public void addSnap(int question, int movie, PartialResult partialResult) {
+        partials.addSnap(question, movie, partialResult);
+    }
+
+    public void saveAll(int questions, int features, SelectionStrategy selectionStrategy, QuestionChoiceStrategy choiceStrategy, float certainty) {
+        for (int i = 0; i < questions; i++) {
+            int qNo = i + 1;
+            String result = createResultStringForQuestion(i);
+            Date time = new Date();
+            String inf = selectionStrategy.getClass().getSimpleName() + "-" + choiceStrategy.getClass().getSimpleName() + "-" + qNo + "-" + features + "_" + certainty+ "_" ;
+            String fileName = "mainInfo_" + inf + time.getTime() + ".txt";
+            saveFile(fileName, result);
+        }
+    }
+
+    private String createResultStringForQuestion(int questionId) {
+        return partials.createResultStringForQuestion(questionId);
     }
 }

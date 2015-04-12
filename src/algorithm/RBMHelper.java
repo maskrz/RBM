@@ -7,6 +7,7 @@ package algorithm;
 
 import algorithm.choice.QuestionChoiceStrategy;
 import algorithm.selection.SelectionStrategy;
+import algorithm.statistics.PartialResult;
 import algorithm.statistics.StatisticsHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,7 @@ public class RBMHelper {
 
     void generateAnswerArrays() {
         int[] ids = new int[repository.getQuestions()];
-        int[] answered = new int[repository.getFeatures()];
+        float[] answered = new float[repository.getFeatures()];
         Arrays.fill(ids, -1);
         Arrays.fill(answered, -1);
         repository.setIds(ids);
@@ -74,7 +75,7 @@ public class RBMHelper {
         repository.setQuestionChoiceStrategy(questionChoiceStrategy);
     }
 
-    public int calculateAnswers(StatisticsHandler statisticsHandler, int questions) {
+    public int calculateAnswers(StatisticsHandler statisticsHandler, int question, boolean handleSteps, int movieId) {
         int[] matches = new int[repository.getConcepts()];
         Arrays.fill(matches, -1);
         int actuall = 0;
@@ -82,7 +83,7 @@ public class RBMHelper {
             int j = 0;
             boolean match = true;
             while (j < repository.getFeatures()) {
-                if (repository.getAnswered()[j] != -1 && (repository.getDataSet().get(i, j) != repository.getAnswered()[j] && repository.getDataSet().get(i, j) != 0.5f)) {
+                if (repository.getAnswered()[j] != -1 && repository.getAnswered()[j] != 0.5 && (repository.getDataSet().get(i, j) != repository.getAnswered()[j] && repository.getDataSet().get(i, j) != 0.5f)) {
                     match = false;
                 }
                 j++;
@@ -92,12 +93,16 @@ public class RBMHelper {
                 actuall++;
             }
         }
-//        System.out.println("Matches: " + actuall);
-        String matchedMovies = "";
-        for (int i = 0; i < actuall; i++) {
-            matchedMovies += matches[i] + " ";
+        String matchedMovies = getMatchedMoviesString(actuall, matches);
+//        System.out.println(matchedMovies);
+        
+        statisticsHandler.addMatchedMoviesInfo(actuall, matchedMovies, question);
+        if(handleSteps) {
+            PartialResult partialResult = new PartialResult();
+            partialResult.setSimilarAmount(actuall);
+            partialResult.setSimiliarString(matchedMovies);
+            statisticsHandler.addSnap(question, movieId - 1, partialResult);
         }
-        statisticsHandler.addMatchedMoviesInfo(actuall, matchedMovies, questions);
 //        System.out.println(matchedMovies);
         return actuall;
     }
@@ -143,13 +148,17 @@ public class RBMHelper {
         FloatMatrix result = repository.getSelectionStrategy().calculateVisible(repository);
         int id = repository.getQuestionChoiceStrategy().selectQuestion(result);
         repository.getIds()[questionId] = id;
-        float answer = repository.getXMatrix().get(0, id);
-        if (repository.getFilterMovies()) {
-            repository.getEntropyCalculator().getCalculatedValues()[id] = (int) answer;
+        // uncertainty
+        float answer = 0.5f;
+        if(Math.random() <= repository.getCertainty()) {
+            answer = repository.getXMatrix().get(0, id);
         }
-        repository.getAnswered()[id] = (int) answer;
         if (repository.getFilterMovies()) {
-            repository.getEntropyCalculator().filterMovies(id, (int) answer);
+            repository.getEntropyCalculator().getCalculatedValues()[id] = answer;
+        }
+        repository.getAnswered()[id] = answer;
+        if (repository.getFilterMovies()) {
+            repository.getEntropyCalculator().filterMovies(id, answer);
         }
         repository.getVMatrix().put(id, 0, answer);
 
@@ -158,5 +167,13 @@ public class RBMHelper {
             repository.setAnswered(repository.getEntropyCalculator().answeredQuestions());
             updateVMatrix();
         }
+    }
+
+    public String getMatchedMoviesString(int actuall, int[] matches) {
+        String matchedMovies = "";
+        for (int i = 0; i < actuall; i++) {
+            matchedMovies += matches[i] + " ";
+        }
+        return matchedMovies;
     }
 }

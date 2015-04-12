@@ -18,7 +18,7 @@ public class EntropyCalculator {
 
     private FloatMatrix movies;
     private boolean[] matchingMovies;
-    private int[] calculatedValues;
+    private float[] calculatedValues;
     private int matchingMoviesAmount;
     private float[] actuallEntropy;
     private ArrayList<Integer> unknownAnswers;
@@ -56,7 +56,7 @@ public class EntropyCalculator {
     protected void initializeMatches() {
         setMatchingMovies(new boolean[rows]);
         Arrays.fill(getMatchingMovies(), true);
-        setCalculatedValues(new int[columns]);
+        setCalculatedValues(new float[columns]);
         Arrays.fill(getCalculatedValues(), -1);
         setMatchingMoviesAmount(rows);
     }
@@ -119,9 +119,6 @@ public class EntropyCalculator {
         float logpx1 = calcLogarithm(px1);
         float logpx0 = calcLogarithm(px0);
         float ans = -px1 * logpx1 - px0 * logpx0;
-        if(ans == 1) {
-//            System.out.println("WOW");
-        }
         return ans;
     }
 
@@ -141,10 +138,10 @@ public class EntropyCalculator {
      * @param questionId
      * @param answer
      */
-    public void filterMovies(int questionId, int answer) {
+    public void filterMovies(int questionId, float answer) {
 //        System.out.println(matchingMoviesAmount);
         for (int i = 0; i < rows; i++) {
-            if ((getMovies().get(i, questionId) != answer) && (getMovies().get(i, questionId) != 0.5)) {
+            if ((getMovies().get(i, questionId) != answer) && (answer != 0.5)) {
                 removeMovie(i);
             }
         }
@@ -158,8 +155,8 @@ public class EntropyCalculator {
      *
      * @return
      */
-    public int[] answeredQuestions() {
-        int[] answered = new int[columns];
+    public float[] answeredQuestions() {
+        float[] answered = new float[columns];
         Arrays.fill(answered, -1);
         for (int i = 0; i < columns; i++) {
             if (getCalculatedValues()[i] >= 0) {
@@ -242,11 +239,11 @@ public class EntropyCalculator {
         this.matchingMoviesAmount = matchingMoviesAmount;
     }
 
-    public int[] getCalculatedValues() {
+    public float[] getCalculatedValues() {
         return calculatedValues;
     }
 
-    public void setCalculatedValues(int[] calculatedValues) {
+    public void setCalculatedValues(float[] calculatedValues) {
         this.calculatedValues = calculatedValues;
     }
 

@@ -13,7 +13,7 @@ import org.jblas.FloatMatrix;
  *
  * @author Skrzypek
  */
-public class RandomStrategy implements SelectionStrategy {
+public class RandomStrategy extends CommonStrategyOperations implements SelectionStrategy {
 
     @Override
     public FloatMatrix calculateVisible(RBMRepository repository) {
@@ -21,6 +21,7 @@ public class RandomStrategy implements SelectionStrategy {
         for (int i = 0; i < repository.getFeatures(); i++) {
             result.put(i, 0, 1);
         }
+        result = removeAnswered(repository, result);
         return result;
     }
 

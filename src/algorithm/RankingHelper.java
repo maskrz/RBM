@@ -16,7 +16,7 @@ public class RankingHelper {
 
     private FloatMatrix v2;
     private FloatMatrix entropy;
-    private int[] calculatedValues;
+    private float[] calculatedValues;
     private FloatMatrix v2Sorted;
     private FloatMatrix entropySorted;
     private int activeNumber;
@@ -53,7 +53,7 @@ public class RankingHelper {
         }
     }
 
-    public void setupHelper(FloatMatrix v2, FloatMatrix entropy, int[] calculatedValues, int activeNumber) {
+    public void setupHelper(FloatMatrix v2, FloatMatrix entropy, float[] calculatedValues, int activeNumber) {
         this.v2 = v2;
         this.entropy = entropy;
         this.calculatedValues = calculatedValues;

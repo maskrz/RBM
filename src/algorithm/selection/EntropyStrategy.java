@@ -12,7 +12,7 @@ import org.jblas.FloatMatrix;
  *
  * @author Skrzypek
  */
-public class EntropyStrategy implements SelectionStrategy {
+public class EntropyStrategy extends CommonStrategyOperations implements SelectionStrategy {
 
     
     @Override
@@ -21,6 +21,7 @@ public class EntropyStrategy implements SelectionStrategy {
         for (int i = 0; i < repository.getFeatures(); i++) {
             result.put(i, 0, repository.getEntropyCalculator().getEntropyForFeature(i));
         }
+        result = removeAnswered(repository, result);
         return result;
     }
 

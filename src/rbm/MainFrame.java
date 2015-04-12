@@ -521,17 +521,17 @@ public class MainFrame extends javax.swing.JFrame {
     private void recognizaMovieButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recognizaMovieButtonActionPerformed
         readRBMParameters();
         readFeaturesMatrix(dataSetRBMname);
-        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions, 1f);
         this.rbm = new RBM(repository, this);
-        rbm.recognizeMovie(movieId, filterMovies, selectionStrategy, choiceStrategy);
+        rbm.recognizeMovie(movieId, filterMovies, selectionStrategy, choiceStrategy, false);
     }//GEN-LAST:event_recognizaMovieButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         readRBMParameters();
         readFeaturesMatrix(dataSetRBMname);
-        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+        RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions, 1f);
         this.rbm = new RBM(repository, this);
-        rbm.executeForAll(filterMovies, selectionStrategy, choiceStrategy);
+        rbm.executeForAll(filterMovies, selectionStrategy, choiceStrategy, true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void CofigurationButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CofigurationButtonActionPerformed
@@ -951,10 +951,11 @@ public class MainFrame extends javax.swing.JFrame {
                 if ("random_best".equals(choiceStrategyString)) {
                     choiceStrategy = QuestionChoiceStrategyType.RANDOM_BEST.newInstance();
                 }
+                float certainty = Float.valueOf(sc.nextLine());
                 readFeaturesMatrix(serializedM);
                 initializeRBM(rbmName);
 
-                RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions);
+                RBMRepository repository = new RBMRepository(a, b, w, featuresMatrix, questions, certainty);
                 this.rbm = new RBM(repository, this);
 
                 //TODO

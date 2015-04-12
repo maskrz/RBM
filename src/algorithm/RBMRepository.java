@@ -29,15 +29,16 @@ public class RBMRepository {
     private EntropyCalculator entropyCalculator;
     private int questions;
     private int[] ids;
-    private int[] answered;
+    private float[] answered;
     private boolean filterMovies;
+    private float certainty;
     private FloatMatrix h1;
     private FloatMatrix v2;
     private SelectionStrategy selectionStrategy;
     private RankingHelper rankingHelper;
     private QuestionChoiceStrategy questionChoiceStrategy;
 
-    public RBMRepository(FloatMatrix a, FloatMatrix b, FloatMatrix w, FloatMatrix dataSet, int questions) {
+    public RBMRepository(FloatMatrix a, FloatMatrix b, FloatMatrix w, FloatMatrix dataSet, int questions, float certainty) {
         this.a = a;
         this.b = b;
         this.w = w;
@@ -45,6 +46,7 @@ public class RBMRepository {
         this.cmf = new CalculatedMatrixFactory();
         this.dataSet = dataSet;
         this.entropyCalculator = new EntropyCalculator(getDataSet());
+        this.certainty = certainty;
 //        rankingHelper = new RankingHelper();
         setParameters();
         this.order = new Node[features];
@@ -171,11 +173,11 @@ public class RBMRepository {
         this.ids = ids;
     }
 
-    public int[] getAnswered() {
+    public float[] getAnswered() {
         return answered;
     }
 
-    public void setAnswered(int[] answered) {
+    public void setAnswered(float[] answered) {
         this.answered = answered;
     }
 
@@ -221,5 +223,13 @@ public class RBMRepository {
 
     public QuestionChoiceStrategy getQuestionChoiceStrategy() {
         return questionChoiceStrategy;
+    }
+
+    public float getCertainty() {
+        return certainty;
+    }
+
+    public void setCertainty(float certainty) {
+        this.certainty = certainty;
     }
 }
